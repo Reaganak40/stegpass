@@ -1,15 +1,16 @@
+import os
+from PIL import Image, ImageTk
 import tkinter as tk
 from tkinterdnd2 import DND_FILES, TkinterDnD
-from PIL import Image, ImageTk
 
 from gui.drag_n_drop import DragDropWidget
 from gui.password_form import PasswordForm
 from gui.theme import THEME
 
-class Application(TkinterDnD.Tk):
+class PasswordManagerWindow(TkinterDnD.Tk):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.title("Password Manager")
+        self.title("StegPass - Save Password")
         self.geometry(f"{THEME.WIDTH}x{THEME.HEIGHT}")
         self.resizable(False, False)
         
@@ -36,7 +37,12 @@ class Application(TkinterDnD.Tk):
 
     def update_image_name(self, file_path):
         self.password_form.update_image_path(file_path)
+        
 
 if __name__ == "__main__":
-    app = Application()
+    # Set the root directory path
+    root_dir  = os.path.dirname(os.path.abspath(__file__))
+    os.environ['ROOT_DIR'] = root_dir
+    
+    app = PasswordManagerWindow()
     app.mainloop()
