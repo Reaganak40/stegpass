@@ -1,7 +1,7 @@
 import os
 import json
 
-from utils.utils import sha256_hash
+from utils.utils import sha256_hash, convert_to_lowercase
 
 USER_DATA_PATH = "\\data\\user_data.json"
 class UserManager:
@@ -54,6 +54,8 @@ class UserManager:
         Returns:
             bool: True if the user was added successfully, False otherwise
         """
+        username = convert_to_lowercase(username)
+        
         if self.check_user_exists(username):
             return False
         
@@ -70,12 +72,22 @@ class UserManager:
         Returns:
             bool: True if the user was deleted successfully, False otherwise
         """
+        username = convert_to_lowercase(username)
+        
         if not self.check_user_exists(username):
             return False
         
         del self.user_data[username]
         self.save_user_data()
         return True
+    
+    def get_users(self) -> list:
+        """ Gets a list of all the users in the user data
+
+        Returns:
+            list: A list of all the users in the user data
+        """
+        return list(self.user_data.keys())
     
     def check_password(self, username, master_password) -> bool:
         """ Checks if a password is correct for a given user
@@ -87,6 +99,8 @@ class UserManager:
         Returns:
             bool: True if the password is correct, False otherwise
         """
+        username = convert_to_lowercase(username)
+        
         if not self.check_user_exists(username):
             return False
         

@@ -23,3 +23,14 @@ def sha256_hash(password) -> str:
     hashed_password = sha256_hash_obj.hexdigest()
 
     return hashed_password
+
+def convert_to_lowercase(username : str) -> str:
+    """ Converts a username to lowercase
+
+    Args:
+        username (str): The username to convert
+
+    Returns:
+        str: The username in lowercase
+    """
+    return username.lower()

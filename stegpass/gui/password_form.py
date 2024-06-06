@@ -1,5 +1,8 @@
 import tkinter as tk
+from tkinter import ttk
+
 from gui.theme import THEME
+from utils.user_manager import UserManager
 
 class PasswordForm(tk.Frame):
     def __init__(self, master, **kwargs):
@@ -11,6 +14,26 @@ class PasswordForm(tk.Frame):
         # Label to show the image path
         self.path_label = tk.Label(self, text="Image Source: No image loaded", pady=10, font=(THEME.FONT, 12), bg=THEME.BG, fg=THEME.TEXT_COLOR)
         self.path_label.pack(anchor="w")
+        
+        # Get the list of users
+        users = UserManager().get_users()
+        
+        # Frame to group the user label and combobox
+        user_frame = tk.Frame(self)
+        user_frame.config(bg=THEME.BG)
+        user_frame.pack(pady=5, anchor='w')
+
+        # Label for the user combobox
+        user_label = tk.Label(user_frame, text="User:", font=(THEME.FONT, 12), bg=THEME.BG, fg=THEME.TEXT_COLOR)
+        user_label.pack(side=tk.LEFT)
+
+        # Combobox to select a user
+        self.user_combobox = ttk.Combobox(user_frame, values=users, font=(THEME.FONT, 12), state='readonly', takefocus=False)
+        self.user_combobox.pack(side=tk.LEFT, padx=5)
+        self.user_combobox.set("Not Selected")
+        
+        # Bind an event to remove focus after selection
+        self.user_combobox.bind("<<ComboboxSelected>>", self.remove_focus)
 
         # Entry to enter the password
         self.password_entry = tk.Entry(self, width=30, fg='grey', font=(THEME.FONT, 12))
@@ -26,10 +49,12 @@ class PasswordForm(tk.Frame):
         self.confirm_password_entry.bind("<FocusIn>", self.clear_confirm_password_entry)
         self.confirm_password_entry.bind("<FocusOut>", self.restore_confirm_password_entry)
 
-        # Checkbox to save as a copy
-        self.save_copy_var = tk.IntVar()
-        self.save_copy_checkbox = tk.Checkbutton(self, text="Save as a copy", variable=self.save_copy_var, font=(THEME.FONT, 12))
-        self.save_copy_checkbox.pack(pady=5, anchor='w')
+        # Checkbox to save to the password folder
+        self.save_to_password_folder_var = tk.IntVar()
+        self.save_to_password_folder_checkbox = tk.Checkbutton(self, text="Save to Password Folder", variable=self.save_to_password_folder_var, 
+                                                 font=('Arial', 12), bg=THEME.BG, fg=THEME.TEXT_COLOR, selectcolor=THEME.BG,
+                                                 activebackground=THEME.BG, activeforeground=THEME.TEXT_COLOR)
+        self.save_to_password_folder_checkbox.pack(pady=5, anchor='w')
 
         # Spacer frame to push the button to the bottom
         spacer_frame = tk.Frame(self)
@@ -38,6 +63,9 @@ class PasswordForm(tk.Frame):
         # Button to save the password
         self.save_button = tk.Button(self, text="Save Password", command=self.save_password, font=(THEME.FONT, 12), width=20, height=2, bg=THEME.PRIMARY_COLOR, fg=THEME.TEXT_COLOR)
         self.save_button.pack(pady=10, anchor='s')
+        
+    def remove_focus(self, event):
+        self.focus()
 
     def clear_password_entry(self, event):
         if self.password_entry.get() == "Enter Password":
@@ -65,7 +93,7 @@ class PasswordForm(tk.Frame):
     def save_password(self):
         password = self.password_entry.get()
         confirm_password = self.confirm_password_entry.get()
-        save_as_copy = self.save_copy_var.get()
+        save_as_copy = self.save_to_password_folder_var.get()
 
         if password == confirm_password:
             # Implement your password saving logic here
