@@ -64,8 +64,25 @@ class PasswordForm(tk.Frame):
         self.save_button = tk.Button(self, text="Save Password", command=self.save_password, font=(THEME.FONT, 12), width=20, height=2, bg=THEME.PRIMARY_COLOR, fg=THEME.TEXT_COLOR)
         self.save_button.pack(pady=10, anchor='s')
         
+    def on_page_reload(self):
+        """ Called by master when this page is (re)loaded
+        """
+        users = UserManager().get_users()
+        self.user_combobox['values'] = users
+        self.user_combobox.set("Not Selected")
+        
+        self.password_entry.delete(0, tk.END)
+        self.password_entry.insert(0, "Enter Password")
+        self.password_entry.config(fg='grey', show='')
+        
+        self.confirm_password_entry.delete(0, tk.END)
+        self.confirm_password_entry.insert(0, "Confirm Password")
+        self.confirm_password_entry.config(fg='grey', show='')
+        
+        self.save_to_password_folder_var.set(0)
+        
     def remove_focus(self, event):
-        self.focus()
+        self.master.focus()
 
     def clear_password_entry(self, event):
         if self.password_entry.get() == "Enter Password":

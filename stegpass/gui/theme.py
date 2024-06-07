@@ -3,5 +3,6 @@ class THEME:
     PRIMARY_COLOR = "#007acc"
     FONT = "Arial"
     TEXT_COLOR = "white"
-    WIDTH = 600
-    HEIGHT = 800
+    WIDTH = 800
+    HEIGHT = 600
+    WINDOW_PADDING = 10
