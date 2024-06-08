@@ -26,4 +26,4 @@ class AddUserWindow(tk.Frame):
     def on_page_reload(self):
         """ Called by master when this page is (re)loaded
         """
-        pass
+        self.add_user_form.on_page_reload()
