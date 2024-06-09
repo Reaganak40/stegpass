@@ -37,3 +37,4 @@
 * Headers
 ***************************************************************/
 #include <core/CLIParser.hpp>
+#include <core/Utils.hpp>

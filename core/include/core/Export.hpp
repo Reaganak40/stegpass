@@ -49,3 +49,9 @@
 #else
 #define CORE_API __declspec(dllimport)
 #endif // CORE_BUILD_DLL
+
+/***************************************************************
+* Define Common Types
+***************************************************************/
+#include <cstdint>
+using Hash256 = uint8_t[32];
