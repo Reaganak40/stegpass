@@ -4,6 +4,8 @@ import json
 from utils.utils import sha256_hash, convert_to_lowercase
 
 USER_DATA_PATH = "\\data\\user_data.json"
+PASSWORD_FOLDER_PATH = "\\data\\passwords"
+
 class UserManager:
     """ Used to create, delete, update and retrieve user data
     """
@@ -14,8 +16,12 @@ class UserManager:
         # Get the root directory of the currently executing script
         root_dir = os.environ.get("ROOT_DIR")
         
+        if not root_dir:
+            raise Exception("ROOT_DIR environment variable not set")
+        
         # Path to the user data file
         self.path_to_user_data = root_dir + USER_DATA_PATH
+        self.path_to_password_folder = root_dir + PASSWORD_FOLDER_PATH
     
         # check if user data file exists (create directory and file if it doesn't)
         if not os.path.exists(self.path_to_user_data):
@@ -105,4 +111,21 @@ class UserManager:
             return False
         
         return self.user_data[username] == sha256_hash(master_password + UserManager.UNIVERSAL_PEPPER)
+    
+    def get_password_folder_path(self, username):
+        """ Gets the path to the folder containing the passwords for a user
+
+        Args:
+            username (str): The username of the user
+
+        Returns:
+            str: The path to the folder containing the passwords for the user
+        """
+        path_to_user_folder = self.path_to_password_folder + "\\" + convert_to_lowercase(username)
+        
+        # create folder if it doesn't exist
+        if not os.path.exists(path_to_user_folder):
+            os.makedirs(path_to_user_folder)
+            
+        return path_to_user_folder
         

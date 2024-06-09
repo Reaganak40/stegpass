@@ -2,7 +2,7 @@
 import os
 import tkinter as tk
 from tkinter import ttk
-from tkinterdnd2 import DND_FILES, TkinterDnD
+from tkinterdnd2 import TkinterDnD
 
 # Project Imports
 from gui.theme import THEME
