@@ -31,14 +31,19 @@ project "UnitTests"
         "%{wks.location}/thirdparty/gtest/googletest/googletest/include/gtest", 
         "%{wks.location}/thirdparty/gtest/googletest/googletest/include", 
         "%{wks.location}/thirdparty/gtest/googletest/googletest",
+
+        -- core include folder
+        "%{wks.location}/core/include"
     }
 
     links
     {
+        "core"
     }
 
     postbuildcommands
     {
+        GetProjectDLL("core"),
     }
 
     filter "system:windows"

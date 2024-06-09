@@ -32,6 +32,7 @@ workspace "StegPass"
 
 -- Visual Studio Projects
 group "steg-backend"
+    include "core/premake5.lua"
     include "bmp-steg/premake5.lua"
 
 group "tests"
