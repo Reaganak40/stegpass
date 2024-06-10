@@ -67,3 +67,26 @@ char* sp::ValidateMessage(uint8_t* messageBytes, size_t messageSize, const Hash2
 
 	return message;
 }
+
+bool sp::IsFileOpenByAnotherProcess(const char* filename)
+{
+	HANDLE hFile = CreateFileA(
+		filename,
+		GENERIC_WRITE,
+		0,  // No sharing
+		NULL,
+		OPEN_EXISTING,
+		FILE_ATTRIBUTE_NORMAL,
+		NULL
+	);
+
+	if (hFile == INVALID_HANDLE_VALUE) {
+		if (GetLastError() == ERROR_SHARING_VIOLATION) {
+			return true; // File is open by another process
+		}
+	}
+	 else {
+	  CloseHandle(hFile);
+	}
+	return false;
+}

@@ -86,4 +86,11 @@ namespace sp {
 	/// <param name="encryptionKey">The key to use for decryption.</param>
 	/// <returns> A pointer to the validated message. If the message is invalid, nullptr is returned. It is up to you to free it.</returns>
 	CORE_API char* ValidateMessage(uint8_t* messageBytes, size_t messageSize, const Hash256 encryptionKey);
+
+	/// <summary>
+	/// Checks if a file is open by another process
+	/// </summary>
+	/// <param name="filename">The file to check </param>
+	/// <returns>True if the file is open by another process, false otherwise </returns>
+	CORE_API bool IsFileOpenByAnotherProcess(const char* filename);
 }

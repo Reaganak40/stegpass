@@ -87,4 +87,28 @@ namespace {
 		EXPECT_EQ(exit_code, sp::ExitCode::Success);
 		EXPECT_STREQ(password.c_str(), standard_out.c_str());
 	}
+
+	TEST(BMP_STEG, TestPasswordSavingAndRecovery3) {
+		std::string standard_out;
+		int exit_code;
+
+
+		std::string target_file = "test_images\\pug.bmp";
+		std::string hexString = "c453bda50114b8df5e12c40b00da0dc38da561042bf60c09c608e67d9af82b86";
+		std::string password = "hello/4!#6?what";
+
+		// test save password function
+		std::string save_password = ".\\bin\\bmp-steg.exe -s " + target_file + " " + password + " -h " + hexString;
+		exit_code = test_utils::RunCommand(save_password, standard_out);
+
+		EXPECT_EQ(exit_code, sp::ExitCode::Success);
+		EXPECT_STREQ("", standard_out.c_str());
+
+		// test get password function
+		std::string get_password = ".\\bin\\bmp-steg.exe -g " + target_file + " -h " + hexString;
+		exit_code = test_utils::RunCommand(get_password, standard_out);
+
+		EXPECT_EQ(exit_code, sp::ExitCode::Success);
+		EXPECT_STREQ(password.c_str(), standard_out.c_str());
+	}
 }

@@ -55,7 +55,7 @@ int main(int argc, char* argv[]) {
 			}
 
             if (!bmp.Save(target_file)) {
-                std::cerr << "Could not save BMP file." << std::endl;
+                std::cerr << "Could not save BMP file: " << target_file << std::endl;
                 return -1;
             }
 		}

@@ -5,6 +5,8 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <chrono>
+#include <thread>
 
 std::string ConvertToString(uint8_t data[], size_t data_size)
 {
@@ -149,9 +151,23 @@ int BMP::HideMessage(const std::string& message) {
     }
 }
 
-bool BMP::Save(const std::string& filename) const {
+bool BMP::Save(const std::string& filename) const
+{
+
+    // Wait until the file is closed or display error after 10 seconds
+    auto start_time = std::chrono::steady_clock::now();
+    while (sp::IsFileOpenByAnotherProcess(filename.c_str())) {
+        auto elapsed_time = std::chrono::steady_clock::now() - start_time;
+        if (elapsed_time >= std::chrono::seconds(10)) {
+            std::cerr << "Error: File is open by another process. Timeout reached." << std::endl;
+            return false;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(100)); // Check every 100 milliseconds
+    }
+
     std::ofstream file(filename, std::ios::binary);
     if (!file) {
+        std::cerr << "Error opening file: " << strerror(errno) << std::endl;
         return false;
     }
     file.write((char*)dataBytes, dataSize);
