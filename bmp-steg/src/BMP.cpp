@@ -79,7 +79,7 @@ int BMP::HideMessage(const std::string& message) {
     sp::Obfuscator::Crypt(encryptedMessage.data(), encryptedMessage.size(), encryptionKey);
 
     // Add metadata (message length) to the beginning of the encrypted message
-    unsigned int messageSize = message.size() + 1; // Include null terminator
+    unsigned int messageSize = static_cast<unsigned int>(message.size()) + 1; // Include null terminator
     encryptedMessage.insert(encryptedMessage.begin(), messageSize);
     messageSize++; // Include the metadata byte
 
@@ -163,7 +163,6 @@ bool BMP::Save(const std::string& filename) const {
 std::string BMP::ExtractMessage() const {
     
     std::vector<uint8_t> messageBytes;
-    uint8_t messageLength;
 
     auto IsComplete = [&]() {
         return messageBytes.size() > 0 && messageBytes[0] == messageBytes.size() - 1;
@@ -359,6 +358,7 @@ uint8_t BMP::ReadFromPixelArray(std::vector<uint8_t>& messageBytes) const
     // read the message length from the metadata
     if (messageBytes.size() == 0) {
         messageBytes.push_back(*pixelArrayPtr);
+        pixelArrayPtr++;
     }
     messageLength = messageBytes[0];
 
@@ -414,7 +414,7 @@ uint8_t BMP::ReadFromGap1(std::vector<uint8_t>& messageBytes) const
     size_t bytes_able_to_read = std::min(remaining_bytes, static_cast<size_t>(gap1.size));
     messageBytes.insert(messageBytes.end(), gap1.data, gap1.data + bytes_able_to_read);
 
-    return messageBytes.size() - start_size;
+    return static_cast<uint8_t>(messageBytes.size() - start_size);
 }
 
 uint8_t BMP::ReadFromGap2(std::vector<uint8_t>& messageBytes) const
@@ -445,5 +445,5 @@ uint8_t BMP::ReadFromGap2(std::vector<uint8_t>& messageBytes) const
 	size_t bytes_able_to_read = std::min(remaining_bytes, static_cast<size_t>(gap2.size));
 	messageBytes.insert(messageBytes.end(), gap2.data, gap2.data + bytes_able_to_read);
 
-	return messageBytes.size() - start_size;
+    return static_cast<uint8_t>(messageBytes.size() - start_size);
 }

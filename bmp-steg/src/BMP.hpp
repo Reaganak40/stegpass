@@ -36,7 +36,7 @@ public:
     // BMP structure for maintaining structure alignment (either before or after the pixel array)
     struct Gap {
 		unsigned char* data;
-		int size;
+		unsigned int size;
 	};
 
     // BMP pixel array structure

@@ -38,7 +38,30 @@
 ***************************************************************/
 #include "core/Export.hpp"
 
+/*
+	* RETURN CODES:
+	* 0: Success
+	* 1: Not enough arguments
+	* 2: Invalid argument(s)
+	* 3: File does not exist
+	* 4: Could not recover password
+	* -1: Unknown/Unexpected error
+*/
+
 namespace sp {
+
+	/// <summary>
+	/// The exit codes for the program.
+	/// </summary>
+	enum ExitCode {
+		Success = 0,
+		NotEnoughArguments = 1,
+		InvalidArguments = 2,
+		FileDoesNotExist = 3,
+		CouldNotRecoverPassword = 4,
+		UnknownError = -1
+	};
+
 	/// <summary>Converts a string to a hash</summary>
 	/// <param name="hash">The out parameter for the hash </param>
 	/// <param name="hashString">The string to convert to a hash </param>

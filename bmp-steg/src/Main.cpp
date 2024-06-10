@@ -71,7 +71,7 @@ int main(int argc, char* argv[]) {
             if (message.empty()) {
                 return 4;
             }
-            std::cout << message << std::endl;
+            std::cout << message;
         }
         catch (const std::exception& e) {
             std::cerr << e.what() << std::endl;

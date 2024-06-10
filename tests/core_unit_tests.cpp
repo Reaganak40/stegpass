@@ -1,5 +1,5 @@
 #include "core_unit_tests.hpp"
-#include <gtest/gtest.h>
+#include "test_utils.hpp"
 
 namespace {
 
