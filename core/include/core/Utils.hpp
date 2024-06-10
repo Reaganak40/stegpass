@@ -43,12 +43,24 @@ namespace sp {
 	/// <param name="hash">The out parameter for the hash </param>
 	/// <param name="hashString">The string to convert to a hash </param>
 	/// <returns>True if the hash was successfully converted, false otherwise </returns>
-	bool CORE_API StringToHash(Hash256& hash, const char* hashString);
+	CORE_API bool StringToHash(Hash256& hash, const char* hashString);
 
 	/// <summary>
 	/// Checks if a character is a hex digit
 	/// </summary>
 	/// <param name="c">The character to check </param>
 	/// <returns>True if the character is a hex digit, false otherwise </returns>
-	bool CORE_API IsHexDigit(char c);
+	CORE_API bool IsHexDigit(char c);
+
+	/// <summary>
+	/// Takes a byte stream that was previously encrypted by the Obfuscator and attempts to restore it. The message
+	/// bytes should include the metadata for its first byte, indicating the original length of the message, including
+	/// the null-terminated character at the end. If the message does not match the metadata or does not end in a null
+	/// terminator, the function will return nullptr.
+	/// </summary>
+	/// <param name="messageBytes">The byte stream to validate. This will be altered in the function.</param>
+	/// <param name="messageSize">The size of the byte stream.</param>
+	/// <param name="encryptionKey">The key to use for decryption.</param>
+	/// <returns> A pointer to the validated message. If the message is invalid, nullptr is returned. It is up to you to free it.</returns>
+	CORE_API char* ValidateMessage(uint8_t* messageBytes, size_t messageSize, const Hash256 encryptionKey);
 }

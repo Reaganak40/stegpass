@@ -69,7 +69,7 @@ public:
 	/// <param name="argv">The arguments passed from main-argv.</param>
 	/// <param name="print_to_stderr">Whether or not to print the help message to stderr.</param>
 	/// <returns>0 indicates successful parsing. 1 indicates an empty set of arguments and the usage example
-	/// is send to the user. 2 indicates an invalid argument was found.</returns>
+	/// is sent to the user. 2 indicates an invalid argument was found.</returns>
 	int Parse(int argc, const char* argv[], bool print_to_stderr = true);
 
 	/// <summary>
@@ -91,11 +91,34 @@ public:
 	/// <returns>The target file to be used for data hiding/extraction.</returns>
 	const char* GetTargetFile() const;
 
+	/// <summary>
+	/// Utility function to check if the target file exists
+	/// </summary>
+	/// <returns>True if the target file exists, false otherwise.</returns>
+	bool TargetFileExists() const;
+
+	/// <summary>
+	/// Gets the password to be used for data hiding.
+	/// </summary>
+	/// <returns>The password to be used for data hiding.</returns>
+	const char* GetPassword() const;
+
+	/// <summary>
+	/// Sets the root path for the CLIParser to use, when dealing with relative paths.
+	/// </summary>
+	/// <param name="root_path">The root path to set.</param>
+	void SetRootPath(const char* root_path);
+
 private:
 	struct Impl;
 	Impl* m_pimpl;
 
+	bool VerifyEnoughArgs(int argc, const char* argv[], bool print_to_stderr) const;
+	bool GetActionFromArgs(int index, const char* argv[], bool print_to_stderr);
+	bool GetTargetFileFromArgs(int index, const char* argv[], bool print_to_stderr);
+	bool GetPasswordFromArgs(int index, int argc, const char* argv[], bool print_to_stderr);
 	bool VerifyFileExtension(const char* filename) const;
+	bool GetHashFromArgs(int index, int argc, const char* argv[], bool print_to_stderr);
 };
 
 }

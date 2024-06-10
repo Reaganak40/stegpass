@@ -37,4 +37,25 @@
 * Headers
 ***************************************************************/
 #include <core/CLIParser.hpp>
+#include <core/Obfuscator.hpp>
 #include <core/Utils.hpp>
+
+#include <string>
+
+namespace test_utils {
+	std::string ConvertToString(uint8_t data[], size_t data_size)
+	{
+		std::string result;
+		for (size_t i = 0; i < data_size; i++) {
+			result += data[i];
+		}
+		return result;
+	}
+
+	void ConvertToByteStream(const std::string& data, uint8_t* out)
+	{
+		for (size_t i = 0; i < data.size(); i++) {
+			out[i] = data[i];
+		}
+	}
+}

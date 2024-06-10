@@ -1,12 +1,29 @@
 #include "BMP.hpp"
-#include "Obfuscator.hpp"
 
+#include "core/Utils.hpp"
 #include <fstream>
 #include <iostream>
 #include <vector>
+#include <algorithm>
+
+std::string ConvertToString(uint8_t data[], size_t data_size)
+{
+    std::string result;
+    for (size_t i = 0; i < data_size; i++) {
+        result += data[i];
+    }
+    return result;
+}
+
+void ConvertToByteStream(const std::string& data, uint8_t* out)
+{
+    for (size_t i = 0; i < data.size(); i++) {
+        out[i] = data[i];
+    }
+}
 
 BMP::BMP(const std::string& filename) 
-    : dataBytes(nullptr), encryptionKey(0x12345678)
+    : dataBytes(nullptr), encryptionKey { 0 }
 {
     // Read the entire file into memory
     std::ifstream file(filename, std::ios::binary | std::ios::ate);
@@ -14,11 +31,11 @@ BMP::BMP(const std::string& filename)
         throw std::runtime_error("Failed to open file");
     }
 
-    std::streamsize size = file.tellg();
+    dataSize = file.tellg();
     file.seekg(0, std::ios::beg);
 
-    dataBytes = new unsigned char[size];
-    if (!file.read((char*)dataBytes, size)) {
+    dataBytes = new unsigned char[dataSize];
+    if (!file.read((char*)dataBytes, dataSize)) {
         throw std::runtime_error("Failed to read file");
     }
 
@@ -51,25 +68,30 @@ void BMP::Info() const {
 int BMP::HideMessage(const std::string& message) {
 
     PixelArray pixelArray;
+
     if (!GetPixelArray(pixelArray)) {
         throw std::runtime_error("Failed to get pixel array");
     }
 
     // Encrypt the message using the Obfuscator class
-    std::vector<uint8_t> messageBytes(message.begin(), message.end());
-    std::vector<uint8_t> encryptedMessage = Obfuscator::Crypt(messageBytes, encryptionKey);
+    std::vector<uint8_t> encryptedMessage(message.begin(), message.end());
+    encryptedMessage.push_back('\0'); // Add null terminator
+    sp::Obfuscator::Crypt(encryptedMessage.data(), encryptedMessage.size(), encryptionKey);
 
     // Add metadata (message length) to the beginning of the encrypted message
-    uint8_t messageLength = static_cast<uint8_t>(message.size());
-    encryptedMessage.insert(encryptedMessage.begin(), messageLength);
-
-    // Hide the encrypted message in the BMP file
-    unsigned char* messagePtr = encryptedMessage.data();
-    unsigned char* pixelArrayPtr = pixelArray.data + pixelArray.rowSize - pixelArray.paddingSize;
     unsigned int messageSize = message.size() + 1; // Include null terminator
+    encryptedMessage.insert(encryptedMessage.begin(), messageSize);
+    messageSize++; // Include the metadata byte
+
+    // Hide the encrypted message in the BMP pixel array
+    uint8_t* messagePtr = encryptedMessage.data();
+    unsigned char* pixelArrayPtr = pixelArray.data + pixelArray.rowSize - pixelArray.paddingSize;
     for (unsigned int i = 0; i < pixelArray.numRows; ++i) {
         for (unsigned int j = 0; j < pixelArray.paddingSize && messageSize > 0; ++j) {
-            *pixelArrayPtr++ = *messagePtr++;
+            *pixelArrayPtr = *reinterpret_cast<unsigned char*>(messagePtr);
+            
+            ++pixelArrayPtr;
+            ++messagePtr;
             --messageSize;
         }
         pixelArrayPtr += pixelArray.rowSize - pixelArray.paddingSize;
@@ -80,8 +102,10 @@ int BMP::HideMessage(const std::string& message) {
     if (messageSize > 0 && GetGap1(gap1)) {
         unsigned char* gap1Ptr = gap1.data;
         for (unsigned int i = 0; i < gap1.size && messageSize > 0; ++i) {
-            *gap1Ptr++ = *messagePtr;
-            messagePtr++;
+            *gap1Ptr = *reinterpret_cast<unsigned char*>(messagePtr);
+
+            ++gap1Ptr;
+            ++messagePtr;
             --messageSize;
         }
     }
@@ -91,7 +115,8 @@ int BMP::HideMessage(const std::string& message) {
     if (messageSize > 0 && GetGap2(gap2)) {
         // If Gap2 is not big enough, reallocate memory for the byte stream
         if (gap2.size < messageSize) {
-            unsigned char* newDataBytes = new unsigned char[gap2.data - dataBytes + messageSize];
+            dataSize = gap2.data - dataBytes + messageSize;
+            unsigned char* newDataBytes = new unsigned char[dataSize];
             std::copy(dataBytes, gap2.data, newDataBytes);
             delete[] dataBytes;
             dataBytes = newDataBytes;
@@ -99,9 +124,13 @@ int BMP::HideMessage(const std::string& message) {
             gap2.size = messageSize;
         }
 
+        // Hide the rest of the message in Gap2
         unsigned char* gap2Ptr = gap2.data;
-        for (unsigned int i = 0; i < messageSize; ++i) {
-            *gap2Ptr++ = *messagePtr++;
+        for (; messageSize > 0; --messageSize) {
+            *gap2Ptr = *reinterpret_cast<unsigned char*>(messagePtr);
+
+			++gap2Ptr;
+			++messagePtr;
         }
     }
 
@@ -125,99 +154,71 @@ bool BMP::Save(const std::string& filename) const {
     if (!file) {
         return false;
     }
-
-    FileHeader fileHeader;
-    if (!GetFileHeader(fileHeader)) {
-        return false;
-    }
-
-    file.write((char*)dataBytes, fileHeader.bfSize);
+    file.write((char*)dataBytes, dataSize);
+    file.close();
 
     return true;
 }
 
 std::string BMP::ExtractMessage() const {
-    PixelArray pixelArray;
-    if (!GetPixelArray(pixelArray)) {
-        throw std::runtime_error("Failed to get pixel array");
-    }
-
+    
     std::vector<uint8_t> messageBytes;
-
-    unsigned char* pixelArrayPtr = pixelArray.data + pixelArray.rowSize - pixelArray.paddingSize;
-
-    // Read the message length from the metadata
     uint8_t messageLength;
-    if (pixelArray.paddingSize == 0) {
-        Gap gap1;
-        if (GetGap1(gap1)) {
-            unsigned char* gap1Ptr = gap1.data;
-            messageLength = *gap1Ptr++;
-            messageBytes.push_back(messageLength);
-            // Read the rest of the message based on the message length
-            uint8_t bytesRead = 0;
-            while (bytesRead < messageLength && gap1.size > 0) {
-                messageBytes.push_back(*gap1Ptr++);
-                bytesRead++;
-                gap1.size--;
-            }
-        }
-        else {
-            Gap gap2;
-            if (GetGap2(gap2)) {
-                unsigned char* gap2Ptr = gap2.data;
-                messageLength = *gap2Ptr++;
-                messageBytes.push_back(messageLength);
-                // Read the rest of the message based on the message length
-                uint8_t bytesRead = 0;
-                while (bytesRead < messageLength && gap2.size > 0) {
-                    messageBytes.push_back(*gap2Ptr++);
-                    bytesRead++;
-                    gap2.size--;
-                }
-            }
-        }
-    }
-    else {
-        messageLength = *(pixelArrayPtr) + 1;
-        // Read the rest of the message based on the message length
-        uint8_t bytesRead = 0;
-        for (unsigned int i = 0; i < pixelArray.numRows; ++i) {
-            for (unsigned int j = 0; j < pixelArray.paddingSize && bytesRead < messageLength; ++j) {
-                messageBytes.push_back(*pixelArrayPtr++);
-                bytesRead++;
-            }
-            pixelArrayPtr += pixelArray.rowSize - pixelArray.paddingSize;
-        }
+
+    auto IsComplete = [&]() {
+        return messageBytes.size() > 0 && messageBytes[0] == messageBytes.size() - 1;
+        };
+
+    auto GetDecodedMessage = [&]() {
+		char* decoded_message = sp::ValidateMessage(messageBytes.data(), messageBytes.size(), encryptionKey);
+        if (decoded_message == nullptr) {
+			return std::string("");
+		}
+
+		std::string message(decoded_message);
+		delete[] decoded_message;
+		return message;
+	};
+
+    // read from pixel array first, if possible.
+    if (!ReadFromPixelArray(messageBytes) && messageBytes.size() > 0 && messageBytes[0] == 0) {
+		return "";
+	}
+
+    // check if the message is complete after reading from the pixel array
+    if (IsComplete()) {
+        return GetDecodedMessage();
     }
 
-    // If the message is too long, read from Gap1 and Gap2
-    if (messageBytes.size() < messageLength + 1) {
-        Gap gap1;
-        if (GetGap1(gap1)) {
-            unsigned char* gap1Ptr = gap1.data;
-            while (messageBytes.size() < messageLength + 1 && gap1.size > 0) {
-                messageBytes.push_back(*gap1Ptr++);
-                gap1.size--;
-            }
-        }
-
-        Gap gap2;
-        if (messageBytes.size() < messageLength + 1 && GetGap2(gap2)) {
-            unsigned char* gap2Ptr = gap2.data;
-            while (messageBytes.size() < messageLength + 1 && gap2.size > 0) {
-                messageBytes.push_back(*gap2Ptr++);
-                gap2.size--;
-            }
-        }
+    // read from Gap1 if the message is not complete
+    if (!ReadFromGap1(messageBytes) && messageBytes.size() > 0 && messageBytes[0] == 0) {
+        return "";
     }
 
-    return ValidateMessage(messageBytes);
+    // check if the message is complete after reading from Gap1
+    if (IsComplete()) {
+        return GetDecodedMessage();
+    }
+
+    // read from Gap2 if the message is not complete
+    if (!ReadFromGap2(messageBytes) && messageBytes.size() > 0 && messageBytes[0] == 0) {
+		return "";
+	}
+
+	// check if the message is complete after reading from Gap2
+    if (IsComplete()) {
+		return GetDecodedMessage();
+	}
+
+    // if the message is not complete after reading from Gap2, message is invalid
+	return "";
 }
 
-void BMP::SetEncryptionKey(uint32_t key)
+void BMP::SetEncryptionKey(const Hash256 key)
 {
-    encryptionKey = key;
+    for (int i = 0; i < 32; i++) {
+        encryptionKey[i] = key[i];
+    }
 }
 
 bool BMP::GetFileHeader(FileHeader& fileHeader) const {
@@ -231,6 +232,19 @@ bool BMP::GetFileHeader(FileHeader& fileHeader) const {
     fileHeader.bfReserved1 = *(short*)(dataBytes + 6);
     fileHeader.bfReserved2 = *(short*)(dataBytes + 8);
     fileHeader.bfOffBits = *(int*)(dataBytes + 10);
+
+    // sanity checks
+    if (fileHeader.bfType[0] != 'B' || fileHeader.bfType[1] != 'M') {
+        throw std::runtime_error("Invalid BMP file, header does not match");
+	}
+
+    if (fileHeader.bfOffBits < 54) {
+		throw std::runtime_error("Invalid BMP file, bfOffBits is too small");
+    }
+
+    if (fileHeader.bfOffBits > dataSize) {
+        throw std::runtime_error("Invalid BMP file, bfOffBits out of bounds");
+    }
 
     return true;
 }
@@ -326,29 +340,110 @@ bool BMP::GetGap2(Gap& gap2) const {
     return true;
 }
 
-std::string BMP::ValidateMessage(const std::vector<uint8_t>& messageBytes) const {
-    if (messageBytes.empty()) {
-        return "";
+uint8_t BMP::ReadFromPixelArray(std::vector<uint8_t>& messageBytes) const
+{
+    PixelArray pixelArray;
+    if (!GetPixelArray(pixelArray)) {
+        throw std::runtime_error("Failed to get pixel array");
     }
 
-    // Get the message length from the metadata
-    uint8_t messageLength = messageBytes[0];
-
-    // Check if the message length is valid
-    if (messageLength >= messageBytes.size()) {
-        return "";
+    // not padding space to read from
+    if (pixelArray.paddingSize == 0) {
+        return 0;
     }
 
-    // Decrypt the message using the Obfuscator class
-    std::vector<uint8_t> messageBytesWithoutMetadata(messageBytes.begin() + 1, messageBytes.begin() + messageLength + 1);
-    std::vector<uint8_t> decryptedMessage = Obfuscator::Crypt(messageBytesWithoutMetadata, encryptionKey);
+    uint8_t messageLength;
+    uint8_t bytesRead = 0;
+    unsigned char* pixelArrayPtr = pixelArray.data + pixelArray.rowSize - pixelArray.paddingSize;
 
-    // Validate the decrypted message
-    for (char c : decryptedMessage) {
-        if (c < 32 || c > 126) {
-            return "";
-        }
+    // read the message length from the metadata
+    if (messageBytes.size() == 0) {
+        messageBytes.push_back(*pixelArrayPtr);
+    }
+    messageLength = messageBytes[0];
+
+    // sanity check: messageLength is too big
+    if (messageLength > dataSize) {
+        messageBytes[0] = 0;
+        return 0;
     }
 
-    return Obfuscator::ConvertToString(decryptedMessage);
+    unsigned int current_row = 0;
+    unsigned int padding_index = 1;
+
+    for (; current_row < pixelArray.numRows; ++current_row) {
+        for (; padding_index < pixelArray.paddingSize && bytesRead < messageLength; padding_index++) {
+			messageBytes.push_back(*pixelArrayPtr);
+			
+            bytesRead++;
+            pixelArrayPtr++;
+		}
+
+		pixelArrayPtr += pixelArray.rowSize - pixelArray.paddingSize;
+        padding_index = 0;
+	}
+
+    return bytesRead;
+}
+
+uint8_t BMP::ReadFromGap1(std::vector<uint8_t>& messageBytes) const
+{
+    Gap gap1;
+    size_t start_size = messageBytes.size();
+
+    // check if gap 1 exists
+    if (!GetGap1(gap1)) {
+		return 0;
+	}
+
+    // if message length is not yet found, try to read from gap 1
+    if (messageBytes.size() == 0) {
+		messageBytes.push_back(*gap1.data);
+
+        // sanity check: messageLength is too big
+        if (messageBytes[0] > dataSize) {
+			messageBytes[0] = 0;
+			return 0;
+		}
+
+        gap1.data++;
+        gap1.size--;
+	}
+
+    size_t remaining_bytes = messageBytes[0] - messageBytes.size() + 1; // metadata size does not include itself 
+    size_t bytes_able_to_read = std::min(remaining_bytes, static_cast<size_t>(gap1.size));
+    messageBytes.insert(messageBytes.end(), gap1.data, gap1.data + bytes_able_to_read);
+
+    return messageBytes.size() - start_size;
+}
+
+uint8_t BMP::ReadFromGap2(std::vector<uint8_t>& messageBytes) const
+{
+    Gap gap2;
+	size_t start_size = messageBytes.size();
+
+	// check if gap 2 exists
+    if (!GetGap2(gap2)) {
+		return 0;
+	}
+
+	// if message length is not yet found, try to read from gap 2
+    if (messageBytes.size() == 0) {
+		messageBytes.push_back(*gap2.data);
+
+		// sanity check: messageLength is too big
+        if (messageBytes[0] > dataSize) {
+			messageBytes[0] = 0;
+			return 0;
+		}
+
+		gap2.data++;
+		gap2.size--;
+	}
+
+	size_t remaining_bytes = messageBytes[0] - messageBytes.size() - 1; // metadata size does not include itself 
+	size_t bytes_able_to_read = std::min(remaining_bytes, static_cast<size_t>(gap2.size));
+	messageBytes.insert(messageBytes.end(), gap2.data, gap2.data + bytes_able_to_read);
+
+	return messageBytes.size() - start_size;
 }

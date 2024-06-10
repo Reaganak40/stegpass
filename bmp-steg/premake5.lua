@@ -17,20 +17,22 @@ project "bmp-steg"
     ignoredefaultlibraries { "LIBCMTD" }
 
     files { 
-        "src/**.h",
+        "src/**.hpp",
         "src/**.cpp",
-        "src/**.c",
-        "include/**.hpp"
      }
     includedirs { 
         "src",
-        "include"
+
+        -- core include folder
+        "%{wks.location}/core/include"
      }
 
     links { 
+        "core"
     }
 
     postbuildcommands{
+        GetProjectDLL("core"),
     }
 
     filter "system:windows"
