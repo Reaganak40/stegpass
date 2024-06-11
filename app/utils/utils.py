@@ -30,6 +30,17 @@ def sha256_hash(password) -> str:
 
     return hashed_password
 
+def is_valid_sha256_hash(hash) -> bool:
+    """ Determines if a string is a valid SHA-256 hash
+
+    Args:
+        hash (str): The string to check
+
+    Returns:
+        bool: True if the string is a valid SHA-256 hash, False otherwise
+    """
+    return len(hash) == 64 and all(c in '0123456789abcdefABCDEF' for c in hash)
+
 def convert_to_lowercase(username : str) -> str:
     """ Converts a username to lowercase
 
@@ -52,7 +63,7 @@ def show_error_message(message : str):
     MB_ICONERROR = 0x00000010
     ctypes.windll.user32.MessageBoxW(0, message, "StegPass", MB_OK | MB_ICONERROR)
     
-def fork_to_login(username) -> str:
+def fork_to_login(username = None) -> str:
     """ Launches the login application
 
     Args:
@@ -67,7 +78,14 @@ def fork_to_login(username) -> str:
         raise Exception("ROOT_DIR environment variable not set")
     
     # Launch the login application
-    return subprocess.check_output([sys.executable, os.path.join(root_dir, 'login.py'), username]).decode('utf-8').strip()
+    if username is None:
+        output = subprocess.check_output([sys.executable, os.path.join(root_dir, 'login.py')]).decode('utf-8').strip()
+    else:
+        output = subprocess.check_output([sys.executable, os.path.join(root_dir, 'login.py'), username]).decode('utf-8').strip()
+        
+    if output == "None":
+        return None
+    return output
 
 def copy_file(src, dst) -> bool:
     """ Copies a file from the source to the destination
