@@ -1,0 +1,1 @@
+pyinstaller --noconfirm --onedir --console --hidden-import "tkinterdnd2" --collect-all "tkinterdnd2" --hidden-import "tkdnd"  "C:/dev/Projects/stegpass/app/main.py"

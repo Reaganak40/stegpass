@@ -38,6 +38,8 @@ class UserManager:
         """
         with open(self.path_to_user_data, 'w') as f:
             json.dump(self.user_data, f)
+            
+        print(f'User data saved to {self.path_to_user_data}')
                 
     def check_user_exists(self, username) -> bool:
         """ Checks if a user exists in the user data
