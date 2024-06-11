@@ -97,4 +97,26 @@ def copy_file(src, dst) -> bool:
         return False
     
     return True
-    
+
+def run_subprocess(command):
+    """ Runs a subprocess and captures the output
+
+    Args:
+        command (str): The command to run
+
+    Returns:
+        int: The exit code of the subprocess
+    """
+    try:
+        # Run the subprocess and capture the output
+        result = subprocess.run(command, capture_output=True, text=True, shell=True)
+        
+        # Get the standard output
+        stdout = result.stdout
+        
+        # Get the exit code
+        exit_code = result.returncode
+        
+        return stdout, exit_code
+    except Exception as e:
+        return str(e), -1

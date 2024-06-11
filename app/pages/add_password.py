@@ -16,8 +16,8 @@ class AddPasswordWindow(tk.Frame):
         self.config(bg=THEME.BG)
 
         # Display the drag and drop widget at the top, taking up 50% of the height and 50% of the width, x-centered
-        drag_drop_widget = DragDropWidget(self)
-        drag_drop_widget.place(x=THEME.WINDOW_PADDING + half_width / 2, y=THEME.WINDOW_PADDING, width=half_width, height=half_height)
+        self.drag_drop_widget = DragDropWidget(self)
+        self.drag_drop_widget.place(x=THEME.WINDOW_PADDING + half_width / 2, y=THEME.WINDOW_PADDING, width=half_width, height=half_height)
 
         # Show the PasswordForm below the drag and drop widget
         self.password_form = PasswordForm(self, bg='lightgrey')
@@ -25,6 +25,9 @@ class AddPasswordWindow(tk.Frame):
 
     def update_image_name(self, file_path):
         self.password_form.update_image_path(file_path)
+        
+    def reset_image(self):
+        self.drag_drop_widget.clear_image()
         
     def on_page_reload(self):
         """ Called by master when this page is (re)loaded

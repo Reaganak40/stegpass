@@ -61,6 +61,7 @@ class Application(TkinterDnD.Tk):
         self.password_entry.bind("<FocusIn>", self.clear_password_entry)
         self.password_entry.bind("<FocusOut>", self.restore_password_entry)
         self.password_entry.bind("<KeyRelease>", lambda e: self.check_if_ready_to_submit())
+        self.password_entry.bind("<Return>", lambda e: self.attempt_login())
         
         # Checkbox to show password
         self.show_password = tk.IntVar()

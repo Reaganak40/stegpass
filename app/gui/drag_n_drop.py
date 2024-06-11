@@ -16,11 +16,12 @@ class DragDropWidget(tk.Frame):
         
         # Create a label to display the instructions with the master widget's background color
         self.instruction_label = tk.Label(self, text="Drag BMP file here or click to browse", pady=20, bg=self.NO_SELECT_COLOR)
-        self.instruction_label.pack()
+        self.instruction_label.pack(side=tk.TOP)
 
         # Create a label to display the image with the master widget's background color
         self.image_label = tk.Label(self, bg=self.NO_SELECT_COLOR)
         self.image_label.pack(expand=True)
+        self.image_label.image = None
 
         # Register drop target
         self.drop_target_register(DND_FILES)
@@ -37,6 +38,19 @@ class DragDropWidget(tk.Frame):
             self.master.update_image_name(file_path)
         else:
             print("Only BMP files are supported.")
+            
+    def clear_image(self):
+        if not self.image_label.image:
+            return
+        
+        self.image_label.config(image='', bg=self.NO_SELECT_COLOR)
+        self.image_label.image = None
+        
+        self.image_label.pack_forget()
+        self.instruction_label.pack(side=tk.TOP)
+        self.image_label.pack(expand=True)
+        
+        self.update_background_color(self.NO_SELECT_COLOR)
 
     def load_image(self, file_path):
         image = Image.open(file_path)
