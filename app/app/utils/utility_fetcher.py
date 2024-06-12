@@ -99,7 +99,7 @@ class UtilityFetcher:
 
 if __name__ == '__main__':
     # Set the root directory path (up one directory from the current file's location)
-    root_dir = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+    root_dir = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../..'))
     os.environ['ROOT_DIR'] = root_dir
     
     from config import setup_config

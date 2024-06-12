@@ -5,6 +5,7 @@ import subprocess
 import shutil
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+PATH_TO_ICON = os.path.abspath(os.path.join(ROOT_DIR, '../../app/res/icon.ico'))
 
 def get_config() -> configparser.ConfigParser:
     """ Gets the config file for the application.
@@ -29,7 +30,7 @@ def get_utility_paths():
     Returns:
         list: A list of paths to the utility executables, or None if the utilities could not be found.
     """
-    path_to_utility_fetcher = os.path.abspath(os.path.join(ROOT_DIR, '../../app/utils/utility_fetcher.py'))
+    path_to_utility_fetcher = os.path.abspath(os.path.join(ROOT_DIR, '../../app/app/utils/utility_fetcher.py'))
     
     # verify the path
     if not os.path.exists(path_to_utility_fetcher):
@@ -105,18 +106,17 @@ def build_app(release_dir):
     
     # get paths needed for pyinstaller command
     path_to_main_py = os.path.abspath(os.path.join(ROOT_DIR, '../../app/main.py'))
-    path_to_icon = os.path.abspath(os.path.join(ROOT_DIR, '../../app/res/icon.ico'))
     
     # verify paths
     if not os.path.exists(path_to_main_py):
         print('Error: main.py not found')
         sys.exit(1)
         
-    if not os.path.exists(path_to_icon):
+    if not os.path.exists(PATH_TO_ICON):
         print('Error: icon.ico not found')
         sys.exit(1)
         
-    build_command = f'python -m PyInstaller --noconfirm --onedir --windowed --icon "{path_to_icon}"\
+    build_command = f'python -m PyInstaller --noconfirm --onedir --windowed --icon "{PATH_TO_ICON}"\
         --hidden-import "tkinterdnd2" --hidden-import "tkdnd" --collect-all "tkinterdnd2"  {path_to_main_py}'
     
     print(f'Building app with pyinstaller...')
@@ -163,6 +163,32 @@ def build_app(release_dir):
     # rename exe to stegpass
     os.rename(os.path.join(app_dir, 'main.exe'), os.path.join(app_dir, 'stegpass.exe'))
     
+def save_release_config(release, config):
+    """ Saves the release config file.
+
+    Args:
+        release (str): The path to the release folder.
+        config (configparser.ConfigParser): The config file for the application.
+    """
+    # Set build to be release (0 - debug, 1 - release)
+    print("Updating config to release build...")
+    config.set('app', 'build', '1')
+    
+    print("Saving config to release folder...")
+    save_path = os.path.join(release, 'app\\_internal\\config.ini')
+    
+    with open(save_path, "w") as f:
+        config.write(f)
+        
+def copy_icon(release):
+    """ Copies the icon to the release folder.
+
+    Args:
+        release (str): The path to the release folder.
+    """
+    print("Copying icon to release folder...")
+    shutil.copy2(PATH_TO_ICON, os.path.join(release, 'app\\_internal\\icon.ico'))
+    
 if __name__ == '__main__':
     
     config = get_config()
@@ -171,6 +197,8 @@ if __name__ == '__main__':
     release_dir = create_release_folder(version)
     build_app(release_dir)
     copy_utility_files(release_dir)
+    save_release_config(release_dir, config)
+    copy_icon(release_dir)
     
 else:
     print('create_release.py should be run as the main script.')

@@ -2,9 +2,10 @@ import os
 import json
 
 from app.utils.utils import sha256_hash, convert_to_lowercase
+from app.utils.config import SP_BUILD_TYPE
 
-USER_DATA_PATH = "\\data\\user_data.json"
-PASSWORD_FOLDER_PATH = "\\data\\passwords"
+USER_DATA_PATH = "data\\user_data.json"
+PASSWORD_FOLDER_PATH = "data\\passwords"
 
 class UserManager:
     """ Used to create, delete, update and retrieve user data
@@ -15,14 +16,20 @@ class UserManager:
     def __init__(self):
         # Get the root directory of the currently executing script
         root_dir = os.environ.get("ROOT_DIR")
-        
         if not root_dir:
             raise Exception("ROOT_DIR environment variable not set")
         
-        # Path to the user data file
-        self.path_to_user_data = root_dir + USER_DATA_PATH
-        self.path_to_password_folder = root_dir + PASSWORD_FOLDER_PATH
-    
+        # The build type will determine the path to the user data file
+        build = os.environ.get("SP_BUILD")
+        if not SP_BUILD_TYPE.IsValid(build):
+            raise Exception(f"Invalid build type: {build}")
+        
+        if build == SP_BUILD_TYPE.RELEASE:
+            root_dir = os.path.abspath(os.path.join(root_dir, '../..'))
+            
+        self.path_to_user_data = os.path.join(root_dir, USER_DATA_PATH)
+        self.path_to_password_folder = os.path.join(root_dir, PASSWORD_FOLDER_PATH)
+        
         # check if user data file exists (create directory and file if it doesn't)
         if not os.path.exists(self.path_to_user_data):
             os.makedirs(os.path.dirname(self.path_to_user_data), exist_ok=True)

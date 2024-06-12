@@ -60,7 +60,7 @@ class PasswordCreator:
             return 1
         
         if exit_code != 0:
-            show_error_message(f"An error occurred while storing the password: {stdout}")
+            show_error_message(f"An error occurred while storing the password:\ncommand:{command}\noutput:{stdout}")
             return 1
         
         return 0

@@ -116,6 +116,9 @@ class Application(TkinterDnD.Tk):
             self.login_button.config(state='disabled')
     
     def attempt_login(self):
+        if self.selected_user is None:
+            return
+        
         if not UserManager().check_password(self.selected_user, self.password_entry.get()):
             self.incorrect_password_label.config(state='normal')
             return

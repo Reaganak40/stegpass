@@ -156,6 +156,23 @@ def run_subprocess(command):
         return stdout, exit_code
     except Exception as e:
         return str(e), -1
-    
 
+def get_path_to_icon():
+    """ Returns the path to the application icon
+
+    Returns:
+        str: The path to the application icon
+    """
+    # Get root directory path
+    root_dir = os.environ.get("ROOT_DIR")
+    if not root_dir:
+        raise Exception("ROOT_DIR environment variable not set")
     
+    build = os.environ.get('SP_BUILD')
+    if not SP_BUILD_TYPE.IsValid(build):
+        return None
+    
+    if build == SP_BUILD_TYPE.DEBUG:
+        return os.path.abspath(os.path.join(root_dir, 'res/icon.ico'))
+    elif build == SP_BUILD_TYPE.RELEASE:
+        return os.path.abspath(os.path.join(root_dir, 'icon.ico'))
