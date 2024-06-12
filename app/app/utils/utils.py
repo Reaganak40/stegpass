@@ -1,3 +1,9 @@
+"""
+StegPass - Password Manager Application
+utils.py - Utility functions for the application
+"""
+
+# ? Standard Imports
 import hashlib
 import ctypes
 from ctypes import wintypes
@@ -5,6 +11,9 @@ import os
 import subprocess
 import sys
 import shutil
+
+# ? Project Imports
+from app.utils.config import SP_BUILD_TYPE
 
 def sha256_hash(password) -> str:
     """ Hashes a password using the SHA-256 algorithm
@@ -77,14 +86,23 @@ def fork_to_login(username = None) -> str:
     if not root_dir:
         raise Exception("ROOT_DIR environment variable not set")
     
-    # Launch the login application
-    if username is None:
-        output = subprocess.check_output([sys.executable, os.path.join(root_dir, 'login.py')]).decode('utf-8').strip()
-    else:
-        output = subprocess.check_output([sys.executable, os.path.join(root_dir, 'login.py'), username]).decode('utf-8').strip()
+    build = os.environ.get('SP_BUILD')
+    if not SP_BUILD_TYPE.IsValid(build):
+        return None
+    
+    if build == SP_BUILD_TYPE.DEBUG:
+        args = [sys.executable, os.path.join(root_dir, 'main.py'), '--login']
+    elif build == SP_BUILD_TYPE.RELEASE:
+        args = [os.path.join(root_dir, '..\\StegPass.exe'), '--login']
+    
+    if username is not None:
+        args.append(username)
         
+    output = subprocess.check_output(args).decode('utf-8').strip()
+    
     if output == "None":
         return None
+    
     return output
 
 def copy_file(src, dst) -> bool:
@@ -138,3 +156,6 @@ def run_subprocess(command):
         return stdout, exit_code
     except Exception as e:
         return str(e), -1
+    
+
+    

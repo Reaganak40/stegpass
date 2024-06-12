@@ -5,9 +5,9 @@ import tkinter as tk
 from tkinter import ttk, filedialog
 
 # Project Imports
-from gui.theme import THEME
-from utils.user_manager import UserManager
-from utils.password_creator import PasswordCreator
+from app.widgets.theme import THEME
+from app.utils.user_manager import UserManager
+from app.utils.password_creator import PasswordCreator
 
 class PasswordForm(tk.Frame):
     def __init__(self, master, **kwargs):

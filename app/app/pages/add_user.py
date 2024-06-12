@@ -4,8 +4,8 @@ import tkinter as tk
 from tkinter import ttk
 
 # Project Imports
-from gui.theme import THEME
-from gui.add_user_form import AddUserForm
+from app.widgets.theme import THEME
+from app.widgets.add_user_form import AddUserForm
 
 class AddUserWindow(tk.Frame):
     """ Page for adding a new user to the system

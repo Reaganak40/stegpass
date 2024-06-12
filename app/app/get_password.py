@@ -3,8 +3,8 @@ import os
 import sys
 
 # Project Imports
-from utils.utils import is_valid_sha256_hash, run_subprocess, fork_to_login
-from utils.utility_fetcher import TargetType, fetch_utility_path
+from app.utils.utils import is_valid_sha256_hash, run_subprocess, fork_to_login
+from app.utils.utility_fetcher import TargetType, UtilityFetcher
 
 def get_password(image_path, user_hash) -> tuple[int, str]:
     """ Retrieves a password from an image file
@@ -29,7 +29,7 @@ def get_password(image_path, user_hash) -> tuple[int, str]:
     if target_type == TargetType.NOT_FOUND:
         return 5, None
     
-    stdout, exit_code = run_subprocess(f'{fetch_utility_path(target_type)} -g "{image_path}" -h {user_hash}')
+    stdout, exit_code = run_subprocess(f'{UtilityFetcher.fetch_path(target_type)} -g "{image_path}" -h {user_hash}')
     return exit_code, stdout if exit_code == 0 else None
     
 if __name__ == '__main__':

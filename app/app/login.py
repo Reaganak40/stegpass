@@ -6,9 +6,9 @@ from tkinter import ttk
 from tkinterdnd2 import TkinterDnD
 
 # Project Imports
-from gui.theme import THEME
-from utils.user_manager import UserManager
-from utils.utils import sha256_hash, show_error_message
+from app.widgets.theme import THEME
+from app.utils.user_manager import UserManager
+from app.utils.utils import sha256_hash, show_error_message
 
 class Application(TkinterDnD.Tk):
     def __init__(self, *args, **kwargs):
@@ -133,20 +133,10 @@ def LogInApp(default_user : str) -> str:
     Returns:
         str: The hash of the master password. None if the user cancels the login process.
     """
-    
-    # Set the root directory path
-    root_dir  = os.path.dirname(os.path.abspath(__file__))
-    os.environ['ROOT_DIR'] = root_dir
-    
     app = Application(default_user)
     app.mainloop()
     
     return app.get_password_hash()
 
 if __name__ == '__main__':
-    # check for default user in args
-    default_user = None
-    if len(sys.argv) > 1:
-        default_user = sys.argv[1]
-    
-    print(LogInApp(default_user))
+    raise Exception("This file is not meant to be run on its own. Please run app/main.py instead.")

@@ -1,9 +1,9 @@
 import os
 import tkinter as tk
 
-from gui.drag_n_drop import DragDropWidget
-from gui.password_form import PasswordForm
-from gui.theme import THEME
+from app.widgets.drag_n_drop import DragDropWidget
+from app.widgets.password_form import PasswordForm
+from app.widgets.theme import THEME
 
 class AddPasswordWindow(tk.Frame):
     def __init__(self, master, **kwargs):

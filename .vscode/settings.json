@@ -4,5 +4,6 @@
         "pyinstaller",
         "Steg",
         "tkinterdnd"
-    ]
+    ],
+    "cmake.configureOnOpen": false
 }

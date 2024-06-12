@@ -1,6 +1,6 @@
 import tkinter as tk
-from gui.theme import THEME
-from utils.user_manager import UserManager
+from app.widgets.theme import THEME
+from app.utils.user_manager import UserManager
 
 class AddUserForm(tk.Frame):
     def __init__(self, master, **kwargs):

@@ -1,7 +1,7 @@
 import os
 import json
 
-from utils.utils import sha256_hash, convert_to_lowercase
+from app.utils.utils import sha256_hash, convert_to_lowercase
 
 USER_DATA_PATH = "\\data\\user_data.json"
 PASSWORD_FOLDER_PATH = "\\data\\passwords"

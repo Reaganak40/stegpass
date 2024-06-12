@@ -4,8 +4,8 @@ import os
 import configparser
 
 # Project Imports
-from utils.utils import fork_to_login, copy_file, show_error_message, run_subprocess
-from utils.utility_fetcher import TargetType, fetch_utility_path
+from app.utils.utils import fork_to_login, copy_file, show_error_message, run_subprocess
+from app.utils.utility_fetcher import TargetType, UtilityFetcher
 
 class PasswordCreator:
     
@@ -40,16 +40,14 @@ class PasswordCreator:
             
         # Step 2: Copy original image to destination
         if src != dest:
-            if not copy_file(src, dest):
-                return 1
+            copy_file(src, dest)
             
         # Step 3: Call backend utility to store the password in the image
         image_name = os.path.basename(src)
         dest = os.path.join(dest, image_name)
-        print(dest)
         
         # get path to appropriate backend utility
-        path_to_utility = fetch_utility_path(file_type)
+        path_to_utility = UtilityFetcher.fetch_path(file_type)
         if not path_to_utility:
             show_error_message('Encountered an error while storing the password: Utility not found.')
             return 1

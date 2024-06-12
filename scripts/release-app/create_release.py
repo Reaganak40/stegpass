@@ -6,11 +6,70 @@ import shutil
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
-COMMAND = """
+def get_config() -> configparser.ConfigParser:
+    """ Gets the config file for the application.
 
+    Returns:
+        configparser.ConfigParser: The config file for the application.
+    """
+    path_to_config_file = os.path.join(ROOT_DIR, '../../app/config.ini')
+    
+    # verify the path
+    if not os.path.exists(path_to_config_file):
+        print('Error: config.ini not found')
+        sys.exit(1)
+    
+    config = configparser.ConfigParser()
+    config.read(path_to_config_file)
+    return config
 
+def get_utility_paths():
+    """ Gets the paths to the utility executables needed for the app.
 
-"""
+    Returns:
+        list: A list of paths to the utility executables, or None if the utilities could not be found.
+    """
+    path_to_utility_fetcher = os.path.abspath(os.path.join(ROOT_DIR, '../../app/utils/utility_fetcher.py'))
+    
+    # verify the path
+    if not os.path.exists(path_to_utility_fetcher):
+        print('Error: utility_fetcher.py not found')
+        sys.exit(1)
+        
+    # execute the script to get the paths
+    output = subprocess.check_output([sys.executable, path_to_utility_fetcher]).decode('utf-8').strip()
+    
+    paths = []
+    for line in output.split('\n'):
+        if line.endswith('\r'):
+            line = line[:-1]
+        paths.append(os.path.abspath(line))
+        
+    # verify the existence of each path
+    for path in paths:
+        if not os.path.exists(path):
+            print(f'Error: {path} not found')
+            return None
+
+    return paths
+    
+def copy_utility_files(release_dir):
+    """ Copies the utility executables to the release folder.
+    """
+    path_to_utility_folder = os.path.join(release_dir, 'utility')
+    utility_paths = get_utility_paths()
+    
+    if not utility_paths:
+        print('Error: Utility paths not found')
+        sys.exit(1)
+    
+    # create the utility folder
+    os.makedirs(path_to_utility_folder)
+    
+    # copy each utility to the utility folder
+    for path in utility_paths:
+        print(f'Copying utility at {path}...')
+        shutil.copy2(path, path_to_utility_folder)
 
 def create_release_folder(version):
     """ Creates a new release folder with the given version number.
@@ -57,7 +116,7 @@ def build_app(release_dir):
         print('Error: icon.ico not found')
         sys.exit(1)
         
-    build_command = f'python -m PyInstaller --noconfirm --onedir --console --icon "{path_to_icon}"\
+    build_command = f'python -m PyInstaller --noconfirm --onedir --windowed --icon "{path_to_icon}"\
         --hidden-import "tkinterdnd2" --hidden-import "tkdnd" --collect-all "tkinterdnd2"  {path_to_main_py}'
     
     print(f'Building app with pyinstaller...')
@@ -101,11 +160,18 @@ def build_app(release_dir):
     # delete dist folder
     shutil.rmtree(os.path.join(release_dir, 'dist'), ignore_errors=True)
     
+    # rename exe to stegpass
+    os.rename(os.path.join(app_dir, 'main.exe'), os.path.join(app_dir, 'stegpass.exe'))
+    
 if __name__ == '__main__':
     
-    config = configparser.ConfigParser()
-    config.read('config.ini')
+    config = get_config()
     version = f'v{config.get("app", "version")}'
     
     release_dir = create_release_folder(version)
     build_app(release_dir)
+    copy_utility_files(release_dir)
+    
+else:
+    print('create_release.py should be run as the main script.')
+    sys.exit(1)
