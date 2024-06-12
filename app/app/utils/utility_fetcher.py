@@ -11,8 +11,9 @@ except ImportError:
 class TargetType:
     """ Enumerates the types of targets that can be selected
     """
-    NOT_FOUND = 0 # Could not find the target
-    BMP = 1       # For .bmp files
+    NOT_FOUND   = 0 # Could not find the target
+    SECURE_COPY = 1 # For secure copies to clipboard
+    BMP         = 2 # For .bmp files
     
     @staticmethod
     def GetTargetType(filepath) -> int:
@@ -36,6 +37,7 @@ class UtilityFetcher:
     
     BACKEND_NAMES = {
             TargetType.BMP : 'bmp-steg',
+            TargetType.SECURE_COPY : 'secure-copy'
         }
     
     @staticmethod

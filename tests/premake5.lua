@@ -33,7 +33,7 @@ project "UnitTests"
         "%{wks.location}/thirdparty/gtest/googletest/googletest",
 
         -- core include folder
-        "%{wks.location}/core/include"
+        "%{wks.location}/utility/core/include"
     }
 
     links

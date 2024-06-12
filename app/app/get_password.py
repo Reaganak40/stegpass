@@ -11,7 +11,7 @@ from win10toast import ToastNotifier
 import ctypes
 
 # ? Project Imports
-from app.utils.utils import is_valid_sha256_hash, run_subprocess, fork_to_login, get_path_to_icon
+from app.utils.utils import is_valid_sha256_hash, run_subprocess, fork_to_login, get_path_to_icon, show_error_message
 from app.utils.utility_fetcher import TargetType, UtilityFetcher
 from app.utils.config import SP_BUILD_TYPE
 
@@ -78,8 +78,11 @@ def notify_user(password : str):
         password (str): The password to notify the user of
     """
     
-    # copy the password to the clipboard
-    pyperclip.copy(password)
+    # use secure-copy utility to copy the password to the clipboard
+    stdout, exit = run_subprocess(f'{UtilityFetcher.fetch_path(TargetType.SECURE_COPY)} "{password}"')
+    if exit != 0:
+        show_error_message(f"An error occurred while copying the password to the clipboard.")
+        return
     
     ToastNotifier().show_toast(
         "Password Copied to Clipboard",
@@ -91,7 +94,8 @@ def notify_user(password : str):
     
     # wait 30 seconds before clearing the clipboard
     time.sleep(30)
-    pyperclip.copy(f" ")
+    if password == pyperclip.paste():
+        pyperclip.copy(f" ")
 
 if __name__ == '__main__':
     raise Exception("get_password.py is not meant to be run directly.")
