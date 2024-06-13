@@ -141,8 +141,9 @@ class BaseGui:
         Args:
             event (any): Event that triggered the deminimize.
         """
-
-        self.root.focus() 
+        if self.root.minimized:
+            self.root.focus() 
+        
         self.root.attributes("-alpha",1) # so you can see the window when is not minimized
         if self.root.minimized == True:
             self.root.minimized = False                                   
@@ -275,3 +276,16 @@ class BaseGui:
         """ Manually set the configuration of the window.
         """
         self.root.config(**kwargs)
+        
+    def set_title(self, title):
+        """ Set the title of the window.
+
+        Args:
+            title (str): The title to set.
+        """
+        pass
+    
+    def get_y_offset_for_origin(self):
+        """ Get the y-offset to get the top of the window (after the title bar)
+        """
+        return self.title_bar.winfo_height()

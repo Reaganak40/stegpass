@@ -135,5 +135,4 @@ class AddUserForm(tk.Frame):
         self.clear_form()
         self.clear_message_label()
         self.master.focus()
-            
         

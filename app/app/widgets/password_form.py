@@ -14,7 +14,7 @@ class PasswordForm(tk.Frame):
         super().__init__(master, **kwargs)
         
         self.times_reloaded = 0
-        self.config(bd=2, relief=tk.FLAT, padx=10, pady=10, bg=THEME.BG)
+        self.config(bd=2, relief=tk.FLAT, bg=THEME.BG)
         self.pack_propagate(False)  # Prevent the frame from resizing to fit its content
         
         # Create frames for the left and right columns
@@ -34,14 +34,14 @@ class PasswordForm(tk.Frame):
         right_frame.config(bg=THEME.BG)
 
         # Label to show the image path
-        self.path_label = tk.Label(right_frame, text="Image Source: No image loaded", pady=10, font=(THEME.FONT, 12), bg=THEME.BG, fg=THEME.TEXT_COLOR, wraplength=max_column_width-20)
+        self.path_label = tk.Label(right_frame, text="Image Source: No image loaded", pady=10, font=(THEME.FONT, 10), bg=THEME.BG, fg=THEME.TEXT_COLOR, wraplength=max_column_width-20)
         self.path_label.pack(anchor="nw")
         self.original_path_to_image = None
         
         # Checkbox to save to the password folder
         self.save_to_password_folder_var = tk.IntVar()
         self.save_to_password_folder_checkbox = tk.Checkbutton(right_frame, text="Save to Password Folder", variable=self.save_to_password_folder_var, 
-                                                 font=('Arial', 12), bg=THEME.BG, fg=THEME.TEXT_COLOR, selectcolor=THEME.BG,
+                                                 font=('Arial', 10), bg=THEME.BG, fg=THEME.TEXT_COLOR, selectcolor=THEME.BG,
                                                  activebackground=THEME.BG, activeforeground=THEME.TEXT_COLOR)
         self.save_to_password_folder_checkbox.pack(pady=5, anchor='w')
         
@@ -52,21 +52,21 @@ class PasswordForm(tk.Frame):
         user_frame.pack(pady=5, anchor='w')
 
         # Label for the user combobox
-        user_label = tk.Label(user_frame, text="User:", font=(THEME.FONT, 12), bg=THEME.BG, fg=THEME.TEXT_COLOR)
+        user_label = tk.Label(user_frame, text="User:", font=(THEME.FONT, 10), bg=THEME.BG, fg=THEME.TEXT_COLOR)
         user_label.pack(side=tk.LEFT)
         
         # Get the list of users
         users = UserManager().get_users()
         
         # Combobox to select a user
-        self.user_combobox = ttk.Combobox(user_frame, values=users, font=(THEME.FONT, 12), state='readonly', takefocus=False, width=22)
+        self.user_combobox = ttk.Combobox(user_frame, values=users, font=(THEME.FONT, 10), state='readonly', takefocus=False, width=22)
         self.user_combobox.pack(side=tk.LEFT, padx=5)
         
         # Bind an event to remove focus after selection
         self.user_combobox.bind("<<ComboboxSelected>>", self.on_user_selected)
         
         # Entry to enter the password
-        self.password_entry = tk.Entry(left_frame, width=30, fg='grey', font=(THEME.FONT, 12))
+        self.password_entry = tk.Entry(left_frame, width=30, fg='grey', font=(THEME.FONT, 10))
         self.password_entry.pack(pady=5, anchor='w')
         self.password_entry.insert(0, "Enter Password")
         self.password_entry.bind("<FocusIn>", self.clear_password_entry)
@@ -74,7 +74,7 @@ class PasswordForm(tk.Frame):
         self.password_entry.bind("<KeyRelease>", lambda e: self.check_if_ready_to_save())
 
         # Entry to confirm the password
-        self.confirm_password_entry = tk.Entry(left_frame, width=30, fg='grey', font=(THEME.FONT, 12))
+        self.confirm_password_entry = tk.Entry(left_frame, width=30, fg='grey', font=(THEME.FONT, 10))
         self.confirm_password_entry.pack(pady=5, anchor='w')
         self.confirm_password_entry.insert(0, "Confirm Password")
         self.confirm_password_entry.bind("<FocusIn>", self.clear_confirm_password_entry)
@@ -84,14 +84,14 @@ class PasswordForm(tk.Frame):
         # Autogenerate password checkbox
         self.auto_gen_var = tk.IntVar()
         self.auto_gen_checkbox = tk.Checkbutton(left_frame, text="Autogenerate Password", variable=self.auto_gen_var, command=self.toggle_autogen_password,
-                                                font=('Arial', 12), bg=THEME.BG, fg=THEME.TEXT_COLOR, selectcolor=THEME.BG,
+                                                font=('Arial', 10), bg=THEME.BG, fg=THEME.TEXT_COLOR, selectcolor=THEME.BG,
                                                 activebackground=THEME.BG, activeforeground=THEME.TEXT_COLOR)
         self.auto_gen_checkbox.pack(pady=2, anchor='w')
 
         # Show password checkbox
         self.show_password_var = tk.IntVar()
         self.show_password_checkbox = tk.Checkbutton(left_frame, text="Show Password", variable=self.show_password_var, command=self.toggle_show_password,
-                                                     font=('Arial', 12), bg=THEME.BG, fg=THEME.TEXT_COLOR, selectcolor=THEME.BG,
+                                                     font=('Arial', 10), bg=THEME.BG, fg=THEME.TEXT_COLOR, selectcolor=THEME.BG,
                                                     activebackground=THEME.BG, activeforeground=THEME.TEXT_COLOR)
         self.show_password_checkbox.pack(pady=2, anchor='w')
 
@@ -101,7 +101,7 @@ class PasswordForm(tk.Frame):
         spacer_frame.config(bg=THEME.BG)
         
         # Button to save the password, centered in the bottom of the main frame
-        self.save_button = tk.Button(self, text="Save Password", command=self.save_password, font=(THEME.FONT, 12), width=20, height=2, bg=THEME.PRIMARY_COLOR, fg=THEME.TEXT_COLOR)
+        self.save_button = tk.Button(self, text="Save Password", command=self.save_password, font=(THEME.FONT, 10), width=20, height=2, bg=THEME.PRIMARY_COLOR, fg=THEME.TEXT_COLOR)
         self.save_button.pack(side=tk.BOTTOM, pady=10)
         
         # Disable button

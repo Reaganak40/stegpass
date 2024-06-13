@@ -8,6 +8,8 @@ from app.widgets.theme import THEME
 class AddPasswordWindow(tk.Frame):
     def __init__(self, master, **kwargs):
         super().__init__(master, **kwargs)
+        
+        height_of_widget = self.winfo_height()
 
         half_height = (THEME.HEIGHT - (3 * THEME.WINDOW_PADDING)) // 2  # Adjust for padding
         half_width = (THEME.WIDTH - (3 * THEME.WINDOW_PADDING)) // 2
@@ -16,12 +18,13 @@ class AddPasswordWindow(tk.Frame):
         self.config(bg=THEME.BG)
 
         # Display the drag and drop widget at the top, taking up 50% of the height and 50% of the width, x-centered
-        self.drag_drop_widget = DragDropWidget(self)
-        self.drag_drop_widget.place(x=THEME.WINDOW_PADDING + half_width / 2, y=THEME.WINDOW_PADDING, width=half_width, height=half_height)
+        self.drag_drop_widget = DragDropWidget(self, width=half_width)
+        self.drag_drop_widget.pack_propagate(False)
+        self.drag_drop_widget.pack(fill='y', expand=True, side='top', padx=THEME.WINDOW_PADDING, pady=THEME.WINDOW_PADDING)
 
         # Show the PasswordForm below the drag and drop widget
         self.password_form = PasswordForm(self, bg='lightgrey')
-        self.password_form.place(x=THEME.WINDOW_PADDING, y=half_height + (THEME.WINDOW_PADDING), width=THEME.WIDTH - (2 * THEME.WINDOW_PADDING), height=half_height)
+        self.password_form.pack(fill='both', expand=True, side='bottom', padx=THEME.WINDOW_PADDING, pady=(0, THEME.WINDOW_PADDING), anchor='center')
 
     def update_image_name(self, file_path):
         self.password_form.update_image_path(file_path)
