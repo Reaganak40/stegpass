@@ -3,7 +3,9 @@
         "LANCZOS",
         "pyinstaller",
         "pyperclip",
+        "retreive",
         "Steg",
+        "steganography",
         "tkinterdnd"
     ],
     "cmake.configureOnOpen": false

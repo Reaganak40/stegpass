@@ -21,7 +21,7 @@ class AddPasswordWindow(tk.Frame):
 
         # Show the PasswordForm below the drag and drop widget
         self.password_form = PasswordForm(self, bg='lightgrey')
-        self.password_form.place(x=THEME.WINDOW_PADDING, y=half_height + (2 * THEME.WINDOW_PADDING), width=THEME.WIDTH - (2 * THEME.WINDOW_PADDING), height=half_height)
+        self.password_form.place(x=THEME.WINDOW_PADDING, y=half_height + (THEME.WINDOW_PADDING), width=THEME.WIDTH - (2 * THEME.WINDOW_PADDING), height=half_height)
 
     def update_image_name(self, file_path):
         self.password_form.update_image_path(file_path)

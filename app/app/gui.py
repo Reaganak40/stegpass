@@ -7,11 +7,14 @@ app.py - Main GUI for the StegPass application
 import tkinter as tk
 from tkinter import ttk
 from tkinterdnd2 import TkinterDnD
+from threading import Thread
 
 # ? Project Imports
 from app.widgets.theme import THEME
 from app.pages.add_user import AddUserWindow
 from app.pages.add_password import AddPasswordWindow
+from app.utils.utils import get_path_to_icon
+from app.get_password import open_password_form
 
 class ManageUserWindow(tk.Frame):
     def __init__(self, master, **kwargs):
@@ -30,6 +33,7 @@ class Application(TkinterDnD.Tk):
         self.title("StegPass - Save Password")
         self.geometry(f"{THEME.WIDTH}x{THEME.HEIGHT}")
         self.resizable(False, False)
+        self.iconbitmap(get_path_to_icon())
         
         # Set DPI awareness (makes the window look better on high resolution screens)
         try:
@@ -39,15 +43,16 @@ class Application(TkinterDnD.Tk):
             pass
 
         # Create a menu bar
-        menu_bar = tk.Menu(self)
-        self.config(menu=menu_bar)
+        self.menu_bar = tk.Menu(self)
+        self.config(menu=self.menu_bar)
 
         # Add options to the menu bar
-        file_menu = tk.Menu(menu_bar, tearoff=0)
-        menu_bar.add_cascade(label="View", menu=file_menu)
+        file_menu = tk.Menu(self.menu_bar, tearoff=0)
+        self.menu_bar.add_cascade(label="View", menu=file_menu)
         file_menu.add_command(label="Add User", command=self.show_add_user_page)
         file_menu.add_command(label="Manage User", command=self.show_manage_user_page)
         file_menu.add_command(label="Add Password", command=self.show_add_password_page)
+        self.menu_bar.add_command(label="Get Password", command=self.handle_get_password)
 
         # Create frames for each page
         self.pages = {}
@@ -64,7 +69,7 @@ class Application(TkinterDnD.Tk):
 
         # Place each frame in the same location; only one will be visible at a time
         for page in self.pages.values():
-            page.place(x=0, y=0, width=800, height=600)
+            page.place(x=0, y=0, width=THEME.WIDTH, height=THEME.HEIGHT)
 
         # Show the initial page
         self.show_add_user_page()
@@ -77,6 +82,16 @@ class Application(TkinterDnD.Tk):
 
     def show_add_password_page(self):
         self._show_page('add_password')
+    
+    def handle_get_password(self):
+        task_thread = Thread(target=open_password_form, args=(self.on_get_password_start, self.on_get_password_end))
+        task_thread.start()
+    
+    def on_get_password_start(self):
+        self.menu_bar.entryconfig("Get Password", state="disabled")
+    
+    def on_get_password_end(self):
+        self.menu_bar.entryconfig("Get Password", state="normal")
 
     def _show_page(self, page_name):
         for name, page in self.pages.items():

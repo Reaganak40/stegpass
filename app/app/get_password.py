@@ -9,11 +9,39 @@ import pyperclip
 import time
 from win10toast import ToastNotifier
 import ctypes
+from tkinter import filedialog
 
 # ? Project Imports
 from app.utils.utils import is_valid_sha256_hash, run_subprocess, fork_to_login, get_path_to_icon, show_error_message
 from app.utils.utility_fetcher import TargetType, UtilityFetcher
 from app.utils.config import SP_BUILD_TYPE
+
+def open_password_form(on_start, on_end):
+    """ Opens a file dialog to select an image file and retrieves a password from it
+
+    Args:
+        on_start (func): The function to call when the password retrieval process starts
+        on_end (func): The function to call when the password retrieval process ends
+    """
+    
+    # Create a file dialog to select an image file
+    on_start()
+    image_path = filedialog.askopenfilename(defaultextension=".bmp", filetypes=[("BMP files", "*.bmp")])
+    
+    if not image_path:
+        on_end()
+        return
+    
+    # Try to get the password from the image file    
+    exit_code, output = get_password(image_path)
+    on_end()
+    
+    if exit_code == 0:
+        notify_user(output)
+    elif exit_code == 4:
+        show_error_message("Could not recover password.")
+    else:
+        show_error_message(output)
 
 def get_password(image_path, user_hash = None) -> tuple[int, str]:
     """ Retrieves a password from an image file

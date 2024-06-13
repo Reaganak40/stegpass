@@ -1,6 +1,6 @@
 <div style="display: flex; align-items: center;">
-    <h1 style="margin-right: 20px; margin-bottom: 0;">StegPass - Password Manager</h1>
     <img src="docs/logo.png" alt="Logo" width="75" style="margin-bottom: 0;">
+    <h1 style="margin-left: 20px; margin-bottom: 0;">StegPass - Password Manager</h1>
 </div>
 
 ## What is it?
@@ -21,17 +21,16 @@ methods to hide your passwords, they cannot be extracted through any standard se
 ### 2. Simplified Storage
 
 By using stegonography to store your passwords, you can basically store your passwords wherever you want. Your
-passwords aren't store in some clustered database, making them easily accessible to you at any time. Moreover,
+passwords aren't stored in some clustered database, making them easily accessible to you at any time. Moreover,
 this decentralized approach allows you to transfer your passwords with no concerns about the medium by which 
 you do it. Send your passwords in email, store them on the cloud, at the end of the day, its just an image file.
 
 ### 3. It's Fun
 
 Add personality to your passwords, choose images that resonate with you and your relationship with whatever service
-you are storing passwords for. For me, I store my Facebook password in an Mark Zuckerburg selfie. Moreover, this
-adds a unique layer of security to your passwords, because perhaps only you can associate some image with some
-service. Even if a hacker could find your password in the image file, they would have no idea what account and
-website it is for (assuming those are omitted from the image and filename).
+you are storing passwords for. Moreover, this adds a unique layer of security to your passwords, because perhaps 
+only you can associate some image with some service. Even if a hacker could find your password in the image file, 
+they would have no idea what account and website it is for (assuming those are omitted from the image and filename).
 
 ## How does it work?
 
@@ -46,10 +45,9 @@ the operating system won't even detect these changes as the file size typically 
     <img src="docs/example_usage1.png" alt="Example Usage 1" width="500" style="margin-bottom: 0;">
 </div>
 
-After a password is stored in an image, you can recover it at any time by using our command line tool (we are quickly creating
-a simplified solution). This will securely copy the password to your clipboard, and you can simply paste it into the login
-screen that you need it for. Your password is removed from the clipboard after 30 seconds, and does not get cached by any
-external service.
+After a password is stored in an image, you can recover it at any time by clicking `Get Password` in the GUI. This will securely 
+copy the password to your clipboard, and you can simply paste it into the login screen that you need it for. Your password is 
+removed from the clipboard after 30 seconds, and does not get cached by any external service.
 
 <div style="display: flex; align-items: center;">
     <img src="docs/example_usage2.png" alt="Example Usage 2" width="500" style="margin-bottom: 0;">

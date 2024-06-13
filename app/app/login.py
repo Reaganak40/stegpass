@@ -8,7 +8,7 @@ from tkinterdnd2 import TkinterDnD
 # Project Imports
 from app.widgets.theme import THEME
 from app.utils.user_manager import UserManager
-from app.utils.utils import sha256_hash, show_error_message
+from app.utils.utils import sha256_hash, show_error_message, get_path_to_icon
 
 class Application(TkinterDnD.Tk):
     def __init__(self, *args, **kwargs):
@@ -17,6 +17,7 @@ class Application(TkinterDnD.Tk):
         self.geometry(f"{450}x{225}")
         self.resizable(False, False)
         self.config(bg=THEME.BG)
+        self.iconbitmap(get_path_to_icon())
         
         # Set DPI awareness (makes the window look better on high resolution screens)
         try:

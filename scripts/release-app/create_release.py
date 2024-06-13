@@ -180,6 +180,15 @@ def save_release_config(release, config):
     with open(save_path, "w") as f:
         config.write(f)
         
+def move_changelog(release):
+    """ Moves the changelog to the release folder.
+
+    Args:
+        release (str): The path to the release folder.
+    """
+    print("Moving changelog to release folder...")
+    shutil.copy2(os.path.join(ROOT_DIR, 'CHANGELOG.md'), os.path.join(release, 'CHANGELOG.md'))
+        
 def copy_icon(release):
     """ Copies the icon to the release folder.
 
@@ -199,6 +208,7 @@ if __name__ == '__main__':
     copy_utility_files(release_dir)
     save_release_config(release_dir, config)
     copy_icon(release_dir)
+    move_changelog(release_dir)
     
 else:
     print('create_release.py should be run as the main script.')
