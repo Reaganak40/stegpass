@@ -1,6 +1,6 @@
 <div style="display: flex; align-items: center;">
+    <h1 style="margin-right: 20px; margin-bottom: 0;">StegPass - Password Manager</h1>
     <img src="docs/logo.png" alt="Logo" width="75" style="margin-bottom: 0;">
-    <h1 style="margin-left: 20px; margin-bottom: 0;">StegPass - Password Manager</h1>
 </div>
 
 ## What is it?

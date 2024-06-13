@@ -1,5 +1,5 @@
 class THEME:
-    BG = "#3e3e42"
+    BG = "#25292e"
     PRIMARY_COLOR = "#007acc"
     FONT = "Arial"
     TEXT_COLOR = "white"
