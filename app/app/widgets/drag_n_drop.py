@@ -30,12 +30,16 @@ class DragDropWidget(tk.Frame):
         # Bind left mouse button click to open file dialog
         self.bind("<Button-1>", self.open_file_dialog)
         self.image_label.bind("<Button-1>", self.open_file_dialog)
+        
+        # Listener for when an image is loaded
+        self.on_load_image_listener = None
 
     def drop(self, event):
         file_path = event.data.strip('{}')  # Strip curly braces for paths with spaces
         if file_path.lower().endswith('.bmp'):
             self.load_image(file_path)
-            self.master.update_image_name(file_path)
+            if self.on_load_image_listener:
+                self.on_load_image_listener(file_path)
         else:
             print("Only BMP files are supported.")
             
@@ -51,6 +55,9 @@ class DragDropWidget(tk.Frame):
         self.image_label.pack(expand=True)
         
         self.update_background_color(self.NO_SELECT_COLOR)
+        
+        if self.on_load_image_listener:
+                self.on_load_image_listener("")
 
     def load_image(self, file_path):
         image = Image.open(file_path)
@@ -80,9 +87,19 @@ class DragDropWidget(tk.Frame):
     def update_background_color(self, color):
         self.config(bg=color)
         self.image_label.config(bg=color)
+        
+    def set_on_load_image_listener(self, listener):
+        """ Set the listener for when an image is loaded
+
+        Args:
+            listener (func): The listener to call when an image is loaded
+        """
+        self.on_load_image_listener = listener
 
     def open_file_dialog(self, event=None):
         file_path = filedialog.askopenfilename(filetypes=[("BMP files", "*.bmp")])
         if file_path:
             self.load_image(file_path)
-            self.master.update_image_name(file_path)
+            
+            if self.on_load_image_listener:
+                self.on_load_image_listener(file_path)

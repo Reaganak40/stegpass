@@ -10,6 +10,27 @@ steganography methods, to securely hide your passwords in plain site. We also us
 secure algorithms to encrypt your passwords, greatly increasing the difficulty for an attacker to steal your
 data.
 
+## How does it work?
+
+Before your password is stored in any image file, you need to setup a master password (and username). This master
+password is not stored anywhere, so it is important that you commit this to memory. We use this master password
+in our algorithms to encrypt your other passwords. By doing this, only you have the ability to decrypt it. 
+After we encrypt your passwords, we hide the encrypted byte stream as surreptitiously as we can. We hide
+data inside the padding of pixels, in-between headers, trying to avoid giving any indications of file tampering. Often,
+the operating system won't even detect these changes as the file size typically remains unchanged.
+
+<div style="display: flex; align-items: center;">
+    <img src="docs/example_usage1.png" alt="Example Usage 1" width="500" style="margin-bottom: 0;">
+</div>
+
+After a password is stored in an image, you can recover it at any time by clicking `Get Password` in the GUI. This will securely 
+copy the password to your clipboard, and you can simply paste it into the login screen that you need it for. Your password is 
+removed from the clipboard after 30 seconds, and does not get cached by any external service.
+
+<div style="display: flex; align-items: center;">
+    <img src="docs/example_usage2.png" alt="Example Usage 2" width="500" style="margin-bottom: 0;">
+</div>
+
 ## Why use it?
 
 ### 1. Security through Obscurity
@@ -31,24 +52,3 @@ Add personality to your passwords, choose images that resonate with you and your
 you are storing passwords for. Moreover, this adds a unique layer of security to your passwords, because perhaps 
 only you can associate some image with some service. Even if a hacker could find your password in the image file, 
 they would have no idea what account and website it is for (assuming those are omitted from the image and filename).
-
-## How does it work?
-
-Before your password is stored in any image file, you need to setup a master password (and username). This master
-password is not stored anywhere, so it is important that you commit this to memory. We use this master password
-in our algorithms to encrypt your other passwords. By doing this, only you have the ability to decrypt it. 
-After we encrypt your passwords, we hide the encrypted byte stream as surreptitiously as we can. We hide
-data inside the padding of pixels, in-between headers, trying to avoid giving any indications of file tampering. Often,
-the operating system won't even detect these changes as the file size typically remains unchanged.
-
-<div style="display: flex; align-items: center;">
-    <img src="docs/_example_usage1.png" alt="Example Usage 1" width="500" style="margin-bottom: 0;">
-</div>
-
-After a password is stored in an image, you can recover it at any time by clicking `Get Password` in the GUI. This will securely 
-copy the password to your clipboard, and you can simply paste it into the login screen that you need it for. Your password is 
-removed from the clipboard after 30 seconds, and does not get cached by any external service.
-
-<div style="display: flex; align-items: center;">
-    <img src="docs/example_usage2.png" alt="Example Usage 2" width="500" style="margin-bottom: 0;">
-</div>

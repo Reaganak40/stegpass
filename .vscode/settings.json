@@ -1,10 +1,13 @@
 {
     "cSpell.words": [
+        "activebackground",
+        "activeforeground",
         "deminimize",
         "LANCZOS",
         "pyinstaller",
         "pyperclip",
         "retreive",
+        "selectcolor",
         "Steg",
         "steganography",
         "tkinterdnd"

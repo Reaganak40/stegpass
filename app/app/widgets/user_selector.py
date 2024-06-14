@@ -35,6 +35,7 @@ class UserSelector(tk.Frame):
                                               height=8, background=THEME.MENU_BAR_COLOR_BG)
             self.user_combobox.pack(side=tk.LEFT, padx=(3, 0))
             self.user_combobox.set(users[0])
+            user_manager.set_active_user(users[0])
             
             # Bind an event to remove focus after selection
             self.user_combobox.bind("<<ComboboxSelected>>", self.on_user_selected)
@@ -43,6 +44,7 @@ class UserSelector(tk.Frame):
         user_manager.add_listener_on_add_user('user_selector', lambda e: self.on_user_added())
     
     def on_user_selected(self, event):
+        UserManager().set_active_user(event.widget.get())
         self.master.focus()
 
     def defocus(self, event):
@@ -51,7 +53,8 @@ class UserSelector(tk.Frame):
     def on_user_added(self):
         """ Callback when a new user is added
         """
-        users = UserManager().get_users()
+        user_manager = UserManager()
+        users = user_manager.get_users()
         
         if self.user_combobox is None:
             self.user_label.config(text="User", fg='black', font=(THEME.FONT, 8))
@@ -59,6 +62,7 @@ class UserSelector(tk.Frame):
                                               height=8, background=THEME.MENU_BAR_COLOR_BG)
             self.user_combobox.pack(side=tk.LEFT, padx=(3, 0))
             self.user_combobox.set(users[0])
+            user_manager.set_active_user(users[0])
             
             # Bind an event to remove focus after selection
             self.user_combobox.bind("<<ComboboxSelected>>", self.on_user_selected)

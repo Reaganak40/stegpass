@@ -45,6 +45,9 @@ class UserManager:
                 
         self.add_user_callbacks = {}
         self.add_users_callbacks_to_remove = []
+        
+        self.set_active_user_callbacks = {}
+        self.active_user = None
                 
     def save_user_data(self):
         """ Saves the user data to the user data file
@@ -171,4 +174,32 @@ class UserManager:
         for id in self.add_users_callbacks_to_remove:
             del self.add_user_callbacks[id]
         self.add_users_callbacks_to_remove = []
+        
+    def set_active_user(self, username):
+        """ Sets the active user
+
+        Args:
+            username (str): The username of the active user
+        """
+        if self.check_user_exists(username):
+            self.active_user = username
+            
+            for callback in self.set_active_user_callbacks.values():
+                callback(username)
+        
+    def get_active_user(self):
+        """ Gets the active user
+
+        Returns:
+            str: The username of the active user
+        """
+        return self.active_user
+    
+    def add_active_user_changed_listener(self, id, listener):
+        """ Adds a listener for when the active user changes
+
+        Args:
+            listener (function): The function to call when the active user changes
+        """
+        self.set_active_user_callbacks[id] = (listener)
         

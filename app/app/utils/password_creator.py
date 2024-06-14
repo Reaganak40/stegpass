@@ -38,8 +38,14 @@ class PasswordCreator:
             show_error_message('Encountered an error while copying the file: File type not supported.')
             return 1
             
+        # check if dest contains a file name
+        if not os.path.isdir(dest):
+            image_name = os.path.basename(dest)
+            dest = os.path.dirname(dest)
+        else:
+            image_name = os.path.basename(src)
+            
         # Step 2: Copy original image to destination
-        image_name = os.path.basename(src)
         if src != os.path.join(dest, image_name):
             copy_file(src, dest)
             
@@ -60,7 +66,7 @@ class PasswordCreator:
             return 1
         
         if exit_code != 0:
-            show_error_message(f"A utility error occurred while storing the password:\ncommand:{command}\noutput:{stdout}")
+            show_error_message(f"A utility error occurred while storing the password:\noutput:{stdout}\nExit Code:{exit_code}")
             return 1
         
         return 0
