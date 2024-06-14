@@ -42,7 +42,7 @@ data inside the padding of pixels, in-between headers, trying to avoid giving an
 the operating system won't even detect these changes as the file size typically remains unchanged.
 
 <div style="display: flex; align-items: center;">
-    <img src="docs/example_usage1.png" alt="Example Usage 1" width="500" style="margin-bottom: 0;">
+    <img src="docs/_example_usage1.png" alt="Example Usage 1" width="500" style="margin-bottom: 0;">
 </div>
 
 After a password is stored in an image, you can recover it at any time by clicking `Get Password` in the GUI. This will securely 

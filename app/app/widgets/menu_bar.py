@@ -4,6 +4,8 @@ import tkinter as tk
 
 # ? Project Imports
 from app.widgets.theme import THEME
+from app.widgets.user_selector import UserSelector
+from app.pages.add_user import AddUserWindow
 
 def create_cascade_menu(parent, menu_items):
     popup = tk.Menu(parent, tearoff=0)
@@ -45,7 +47,10 @@ class MenuBar(tk.Frame):
     
     def __init__(self, master, **kwargs):
         super().__init__(master, **kwargs)
-        self.config(bg="lightgray", height=30)
+        self.config(bg=THEME.MENU_BAR_COLOR_BG, height=30)
+        
+        self.user_selector = UserSelector(self)
+        self.user_selector.pack(side=tk.RIGHT, padx=5, fill=tk.Y)
         
     def AddButton(self, label_text) -> tk.Label:
         """ Add a button to the menu bar.
@@ -82,3 +87,11 @@ class MenuBar(tk.Frame):
     
     def default_height(self):
         return 30 - 4 # account for the padding on top and bottom
+    
+    def NotifyUserSelector(self, add_user_window : AddUserWindow):
+        """ Notify the user selector widget about a new user being added.
+
+        Args:
+            add_user_window (AddUserWindow): The window that was used to add a new user.
+        """
+        add_user_window.add_user_added_listener(self.user_selector.on_user_added)

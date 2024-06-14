@@ -115,6 +115,7 @@ class AddUserForm(tk.Frame):
         if user_manager.add_user(username, master_password):
             self.clear_form()
             self.show_success_message("User added successfully!")
+            self.master.on_user_added()
             self.master.focus()
         else:
             self.show_error_message("User already exists!")

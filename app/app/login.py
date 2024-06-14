@@ -1,3 +1,8 @@
+"""
+StegPass - Password Manager Application
+login.py - GUI to handle user logins
+"""
+
 # ? Standard Imports
 import os
 import sys

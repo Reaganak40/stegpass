@@ -17,6 +17,7 @@ from app.pages.add_password import AddPasswordWindow
 from app.utils.utils import get_path_to_icon
 from app.widgets.theme import THEME
 from app.widgets.menu_bar import MenuBar, PopupMenu
+from app.utils.user_manager import UserManager
 
 class ManageUserWindow(tk.Frame):
     def __init__(self, master, **kwargs):
@@ -48,20 +49,27 @@ def GuiApp():
 
     def show_add_password_page():
         show_page('add_password')
-    
+        
     # Create a menu bar
     menu_bar = MenuBar(content)
     menu_bar.pack(side=tk.TOP, fill=tk.X)
+    get_password_button = None
     
-    # Cascade menu to view pages    
-    file_popup = PopupMenu(content)
-    file_popup.add_command(label="Add User", command=show_add_user_page)
-    file_popup.add_command(label="Manage User", command=show_manage_user_page)
-    file_popup.add_command(label="Add Password", command=show_add_password_page)
-    menu_bar.AddCascade("View", file_popup) 
+    def add_menu_items():
+        nonlocal get_password_button
+        if get_password_button is not None:
+            return
+        
+        # Cascade menu to view pages    
+        view_popup = PopupMenu(content)
+        view_popup.add_command(label="Add User", command=show_add_user_page)
+        view_popup.add_command(label="Manage User", command=show_manage_user_page)
+        view_popup.add_command(label="Add Password", command=show_add_password_page)
+        menu_bar.AddCascade("View", view_popup) 
     
-    # Add button and handlers for getting password
-    get_password_button = menu_bar.AddButton("Get Password")
+        # Add button and handlers for getting password
+        get_password_button = menu_bar.AddButton("Get Password")
+        get_password_button.bind("<Button-1>", lambda e: handle_get_password())
     
     def on_get_password_start():
         get_password_button.config(state="disabled")
@@ -73,7 +81,6 @@ def GuiApp():
         task_thread = Thread(target=open_password_form, args=(on_get_password_start, on_get_password_end))
         task_thread.start()
     
-    get_password_button.bind("<Button-1>", lambda e: handle_get_password())
     
     # Create frames for each page
     pages = {}
@@ -103,6 +110,12 @@ def GuiApp():
             else:
                 page.lower()
         
+    if len(UserManager().get_users()) != 0:
+        add_menu_items()
+    else:
+        pages['add_user'].add_user_added_listener(add_menu_items)
+    menu_bar.NotifyUserSelector(pages['add_user'])
+    
     # Show the initial page
     show_add_user_page()
 

@@ -10,3 +10,5 @@ class THEME:
     WIDTH = 800
     HEIGHT = 600
     WINDOW_PADDING = 10
+    
+    MENU_BAR_COLOR_BG = "lightgray"
