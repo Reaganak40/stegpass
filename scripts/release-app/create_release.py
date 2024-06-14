@@ -1,3 +1,9 @@
+"""
+StegPass - Password Manager Application
+create_release.py - Use this script to create a new release of the application
+"""
+
+# ? Standard Imports
 import configparser
 import os
 import sys
@@ -187,7 +193,7 @@ def move_changelog(release):
         release (str): The path to the release folder.
     """
     print("Moving changelog to release folder...")
-    shutil.copy2(os.path.join(ROOT_DIR, '..\\..\\CHANGELOG.md'), os.path.join(release, 'CHANGELOG.md'))
+    shutil.copy2(os.path.join(ROOT_DIR, 'CHANGELOG.md'), os.path.join(release, 'CHANGELOG.md'))
         
 def copy_icon(release):
     """ Copies the icon to the release folder.

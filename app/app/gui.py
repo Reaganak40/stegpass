@@ -89,8 +89,7 @@ def GuiApp():
     }
     
     # Place each frame in the same location; only one will be visible at a time
-    app.root.update() # Update the window to get the height of the menu bar
-    y_offset = menu_bar.winfo_height()
+    y_offset = menu_bar.default_height()
     
     for page in pages.values():
         page.place(x=0, y=y_offset, width=THEME.WIDTH, height=THEME.HEIGHT-y_offset-app.get_y_offset_for_origin())

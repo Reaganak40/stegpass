@@ -3,8 +3,10 @@
 from tkinter import *
 from ctypes import windll
 from tkinterdnd2 import TkinterDnD
+from PIL import Image, ImageTk
 
 # ? Project imports
+from app.utils.utils import resize_image
 from app.widgets.theme import THEME
 
 # Credit to: https://github.com/Terranova-Python/Tkinter-Menu-Bar/blob/main/main.py
@@ -25,6 +27,8 @@ class BaseGui:
             pass
         
         self.root = TkinterDnD.Tk()
+        self.root.overrideredirect(True)
+        
         self.root.minimized = False # only to know if root is minimized
         self.root.maximized = False # only to know if root is maximized
         
@@ -32,20 +36,16 @@ class BaseGui:
         title = kwargs.get("title", "StegPass")
         self.root.title(title)
         
-        # Add icon
-        self.icon = kwargs.get("icon", None)
-        
         # Set window size
         if "size" in kwargs:
-            self.root.geometry(f'{kwargs["size"][0]}x{kwargs["size"][1]}+75+75')
+            self._center_geometry(kwargs["size"][0], kwargs["size"][1])
         else:
-            self.root.geometry(f"{THEME.WIDTH}x{THEME.HEIGHT}+75+75")
+            self._center_geometry(THEME.WIDTH, THEME.HEIGHT)
             
         # Set window resizable
         self.resizable = kwargs.get("resizable", (True, True))
             
         # Implement custom title bar
-        self.root.overrideredirect(True)
         self.title_bar = Frame(self.root, bg=RGRAY, relief='raised', bd=0,highlightthickness=0)
         
         # put a close button on the title bar
@@ -53,6 +53,7 @@ class BaseGui:
         self.expand_button = Button(self.title_bar, text=' 🗖 ', command=self.maximize_me,bg=RGRAY,padx=2,pady=2,bd=0,fg='white',font=("calibri", 13),highlightthickness=0)
         self.minimize_button = Button(self.title_bar, text=' 🗕 ',command=self.minimize_me,bg=RGRAY,padx=2,pady=2,bd=0,fg='white',font=("calibri", 13),highlightthickness=0)
         self.title_bar_title = Label(self.title_bar, text=title, bg=RGRAY,bd=0,fg='white',font=("helvetica", 10),highlightthickness=0)
+        self.title_bar_icon = Label(self.title_bar, bg=RGRAY,highlightthickness=0)
         
         # a frame for the main area of the window, this is where the actual app will go
         self.content = Frame(self.root, bg=DGRAY,highlightthickness=0)
@@ -62,12 +63,14 @@ class BaseGui:
         self.close_button.pack(side=RIGHT,ipadx=7,ipady=1)
         self.expand_button.pack(side=RIGHT,ipadx=7,ipady=1)
         self.minimize_button.pack(side=RIGHT,ipadx=7,ipady=1)
-        self.title_bar_title.pack(side=LEFT, padx=10)
+        self.title_bar_icon.pack(side=LEFT, padx=5)
+        self.title_bar_title.pack(side=LEFT, padx=(0, 10))
         self.content.pack(expand=1, fill=BOTH) # replace this with your main Canvas/Frame/etc.
         
         # Bind title bar motion to the move window function
         self.title_bar.bind('<Button-1>', lambda e: self.get_pos(e)) # so you can drag the window from the title bar
         self.title_bar_title.bind('<Button-1>', lambda e: self.get_pos(e)) # so you can drag the window from the title 
+        self.title_bar_icon.bind('<Button-1>', lambda e: self.get_pos(e)) # so you can drag the window from the icon
 
         # button effects in the title bar when hovering over buttons
         self.close_button.bind('<Enter>',lambda e: self.changex_on_hovering(e))
@@ -82,7 +85,9 @@ class BaseGui:
         if self.resizable[0]:
             self.resizex_widget.config(cursor='sb_h_double_arrow')
         
-        self.resizex_widget.pack(side=RIGHT,ipadx=2,fill=Y)
+        # TODO: Find a better solution for resizing the window than using a packed widget.
+        # currently does not show/work because width is 0, if >0 it will show and ruin the menubar
+        self.resizex_widget.pack(side=RIGHT,ipadx=0,fill=Y)
         self.resizex_widget.bind("<B1-Motion>",lambda e: self.resizex(e))
         
         # resize the window height
@@ -93,9 +98,16 @@ class BaseGui:
         self.resizey_widget.pack(side=BOTTOM,ipadx=2,fill=X)
         self.resizey_widget.bind("<B1-Motion>",lambda e: self.resizey(e))
         
+        # Add icon
+        self.icon = kwargs.get("icon", None)
+        
+        if not self.resizable[0] and not self.resizable[1]:
+            self.expand_button.config(state=DISABLED)
+        
         # some settings
         self.root.bind("<FocusIn>", lambda e: self.deminimize(e)) # to view the window by clicking on the window icon on the taskbar
         self.root.after(10, self.set_appwindow) # to see the icon on the task bar
+        self.root.after(15, self.update_icon) # to update the icon of the window
         
     def get_content(self) -> Frame:
         """ Returns the main content frame of the window.
@@ -173,7 +185,8 @@ class BaseGui:
         
 
     def change_size_on_hovering(self, event):
-        self.expand_button['bg']=LGRAY
+        if self.resizable[0] or self.resizable[1]:
+            self.expand_button['bg']=LGRAY
         
         
     def return_size_on_hovering(self, event):
@@ -214,8 +227,13 @@ class BaseGui:
                 
             self.title_bar.bind('<B1-Motion>', move_window)
             self.title_bar.bind('<ButtonRelease-1>', release_window)
+            
             self.title_bar_title.bind('<B1-Motion>', move_window)
             self.title_bar_title.bind('<ButtonRelease-1>', release_window)
+            
+            self.title_bar_icon.bind('<B1-Motion>', move_window)
+            self.title_bar_icon.bind('<ButtonRelease-1>', release_window)
+            
         else:
             self.expand_button.config(text=" 🗖 ")
             self.root.maximized = not self.root.maximized
@@ -283,9 +301,65 @@ class BaseGui:
         Args:
             title (str): The title to set.
         """
-        pass
+        self.title_bar_title.config(text=title)
     
     def get_y_offset_for_origin(self):
         """ Get the y-offset to get the top of the window (after the title bar)
         """
-        return self.title_bar.winfo_height()
+        # hardcoded value for the title bar height
+        return 45
+    
+    def center_window(self):
+        """ Center the window on the screen.
+        """
+        # update the window to get the correct height
+        self.root.update()
+        
+        # get the screen resolution
+        scr_width, scr_height = self.root.winfo_screenwidth(), self.root.winfo_screenheight()
+        
+        # get the window resolution
+        border_width = self.root.winfo_rootx() - self.root.winfo_x()
+        title_height = self.root.winfo_rooty() - self.root.winfo_y()
+        win_width = self.root.winfo_width() + border_width + border_width
+        win_height = self.root.winfo_height() + title_height + border_width
+        
+        # calculate the position
+        x = (scr_width - win_width) // 2
+        y = (scr_height - win_height) // 2
+        
+        # place the window at the calculated position
+        self.root.geometry("+%d+%d" % (x, y))
+        
+    def _center_geometry(self, width, height):
+        """ Centers the window with the given width and height.
+
+        Args:
+            width (int): The width of the window.
+            height (int): The height of the window.
+        """
+        # get the screen resolution
+        scr_width, scr_height = self.root.winfo_screenwidth(), self.root.winfo_screenheight()
+        
+        # calculate the centered position offset
+        offset_x = (scr_width - width) // 2
+        offset_y = (scr_height - height) // 2
+        
+        # place the window at the calculated position
+        self.root.geometry(f"{width}x{height}+{offset_x}+{offset_y}")
+        
+    def update_icon(self):
+        """ Update the icon of the window.
+        """
+        if self.icon is not None:
+            self.root.iconbitmap(self.icon)
+            
+        # add icon to the title bar
+        image = Image.open(self.icon)
+        resized_image = resize_image(image, self.get_y_offset_for_origin() - 10)
+        
+        # keep a reference to the image so it doesn't get garbage collected        
+        self.icon_image = ImageTk.PhotoImage(resized_image)
+        
+        self.title_bar_icon.config(image=self.icon_image)
+        

@@ -44,6 +44,9 @@ class AddUserForm(tk.Frame):
         # Button to add user
         self.add_user_button = tk.Button(self, text="Add User", command=self.add_user, font=(THEME.FONT, 12), width=20, height=2, bg=THEME.PRIMARY_COLOR, fg=THEME.TEXT_COLOR)
         self.add_user_button.pack(pady=10, anchor='s')
+        
+        self.add_user_button.bind("<Enter>", lambda e: self.add_user_button.config(bg=THEME.PRIMARY_COLOR_LIGHTEN))
+        self.add_user_button.bind("<Leave>", lambda e: self.add_user_button.config(bg=THEME.PRIMARY_COLOR))
     
     def on_enter(self, event = None):
         self.add_user()

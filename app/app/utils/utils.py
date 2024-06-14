@@ -11,6 +11,8 @@ import os
 import subprocess
 import sys
 import shutil
+from PIL import Image
+
 
 # ? Project Imports
 from app.utils.config import SP_BUILD_TYPE
@@ -176,3 +178,28 @@ def get_path_to_icon():
         return os.path.abspath(os.path.join(root_dir, 'res/icon.ico'))
     elif build == SP_BUILD_TYPE.RELEASE:
         return os.path.abspath(os.path.join(root_dir, 'icon.ico'))
+
+def resize_image(image, max_height):
+    """ Resizes an image while maintaining the aspect ratio
+
+    Args:
+        image (PIL.Image): The image to resize
+        max_height (int): The maximum height of the resized image
+
+    Returns:
+        PIL.Image: The resized image
+    """
+    
+    # Get the original dimensions of the image
+    width, height = image.size
+    
+    # Calculate the new width and height while maintaining the aspect ratio
+    if height > max_height:
+        new_height = max_height
+        new_width = int((new_height / height) * width)
+    else:
+        new_width, new_height = width, height
+    
+    # Resize the image
+    resized_image = image.resize((new_width, new_height), Image.LANCZOS)
+    return resized_image

@@ -79,3 +79,6 @@ class MenuBar(tk.Frame):
         label.bind("<Enter>", lambda e: label.config(bg=THEME.PRIMARY_COLOR_LIGHTEN))
         label.bind("<Leave>", lambda e: label.config(bg=THEME.PRIMARY_COLOR))
         label.bind("<Button-1>", popup_menu.on_menu_click)
+    
+    def default_height(self):
+        return 30 - 4 # account for the padding on top and bottom
