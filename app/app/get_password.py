@@ -41,7 +41,7 @@ def open_password_form(on_start, on_end):
     elif exit_code == 4:
         show_error_message("Could not recover password.")
     else:
-        show_error_message(output)
+        show_error_message(f'Encountered unexpected utility error: {output}\nExit code: {exit_code}')
 
 def get_password(image_path, user_hash = None) -> tuple[int, str]:
     """ Retrieves a password from an image file

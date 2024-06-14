@@ -10,6 +10,11 @@ All notable changes to StegPass will be documented in this file.
 - This CHANGELOG to more easily document changes between versions
 - StegPass icon is now present in the application
 
+### Changed
+
+- Complete change in the GUIs handling of the title bar and menu bar (created from scratch)
+- Users cannot access parts of the app until an account is created.
+
 ### Fixed
 
 - A formatting bug in the `Add Password` form that moves the button off the screen.

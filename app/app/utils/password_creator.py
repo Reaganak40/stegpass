@@ -39,11 +39,11 @@ class PasswordCreator:
             return 1
             
         # Step 2: Copy original image to destination
-        if src != dest:
+        image_name = os.path.basename(src)
+        if src != os.path.join(dest, image_name):
             copy_file(src, dest)
             
         # Step 3: Call backend utility to store the password in the image
-        image_name = os.path.basename(src)
         dest = os.path.join(dest, image_name)
         
         # get path to appropriate backend utility
@@ -60,7 +60,7 @@ class PasswordCreator:
             return 1
         
         if exit_code != 0:
-            show_error_message(f"An error occurred while storing the password:\ncommand:{command}\noutput:{stdout}")
+            show_error_message(f"A utility error occurred while storing the password:\ncommand:{command}\noutput:{stdout}")
             return 1
         
         return 0

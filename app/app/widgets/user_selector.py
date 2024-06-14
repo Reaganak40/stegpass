@@ -19,7 +19,8 @@ class UserSelector(tk.Frame):
         super().__init__(master, **kwargs)
         
         self.config(bg=THEME.MENU_BAR_COLOR_BG)
-        users = UserManager().get_users()
+        user_manager = UserManager()
+        users = user_manager.get_users()
         
         if len(users) == 0:
             self.user_label = tk.Label(self, text="No Users Found", font=(THEME.FONT, 8, "italic"), fg='grey', bg=THEME.MENU_BAR_COLOR_BG)
@@ -38,6 +39,8 @@ class UserSelector(tk.Frame):
             # Bind an event to remove focus after selection
             self.user_combobox.bind("<<ComboboxSelected>>", self.on_user_selected)
             self.user_combobox.bind("<FocusIn>", self.defocus)
+            
+        user_manager.add_listener_on_add_user('user_selector', lambda e: self.on_user_added())
     
     def on_user_selected(self, event):
         self.master.focus()
@@ -51,7 +54,7 @@ class UserSelector(tk.Frame):
         users = UserManager().get_users()
         
         if self.user_combobox is None:
-            self.user_label.config(text="User", fg='black')
+            self.user_label.config(text="User", fg='black', font=(THEME.FONT, 8))
             self.user_combobox = ttk.Combobox(self, values=users, font=(THEME.FONT, 8), state='readonly', takefocus=False, width=15,
                                               height=8, background=THEME.MENU_BAR_COLOR_BG)
             self.user_combobox.pack(side=tk.LEFT, padx=(3, 0))
@@ -59,7 +62,7 @@ class UserSelector(tk.Frame):
             
             # Bind an event to remove focus after selection
             self.user_combobox.bind("<<ComboboxSelected>>", self.on_user_selected)
-            self.user_combobox.bind("<FocusOut>", lambda e: self.on_selected_focus_out)
+            self.user_combobox.bind("<FocusIn>", self.defocus)
             
         else:
             curr_user = self.user_combobox.get()

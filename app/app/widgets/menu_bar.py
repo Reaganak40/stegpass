@@ -87,11 +87,3 @@ class MenuBar(tk.Frame):
     
     def default_height(self):
         return 30 - 4 # account for the padding on top and bottom
-    
-    def NotifyUserSelector(self, add_user_window : AddUserWindow):
-        """ Notify the user selector widget about a new user being added.
-
-        Args:
-            add_user_window (AddUserWindow): The window that was used to add a new user.
-        """
-        add_user_window.add_user_added_listener(self.user_selector.on_user_added)

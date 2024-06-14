@@ -70,6 +70,9 @@ def GuiApp():
         # Add button and handlers for getting password
         get_password_button = menu_bar.AddButton("Get Password")
         get_password_button.bind("<Button-1>", lambda e: handle_get_password())
+        
+        # remove any listeners for adding menu items
+        UserManager().remove_listener_on_add_user('add_menu_items')
     
     def on_get_password_start():
         get_password_button.config(state="disabled")
@@ -109,12 +112,12 @@ def GuiApp():
                 app.set_title(titles[page_name])  # Update the window title
             else:
                 page.lower()
-        
-    if len(UserManager().get_users()) != 0:
-        add_menu_items()
+    
+    user_manager = UserManager()
+    if len(user_manager.get_users()) == 0:
+        user_manager.add_listener_on_add_user('add_menu_items', lambda e: add_menu_items())
     else:
-        pages['add_user'].add_user_added_listener(add_menu_items)
-    menu_bar.NotifyUserSelector(pages['add_user'])
+        add_menu_items()
     
     # Show the initial page
     show_add_user_page()
