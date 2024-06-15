@@ -109,6 +109,14 @@ class UserManager:
         self.save_user_data()
         return True
     
+    def count_users(self) -> int:
+        """ Returns the number of users in the user data
+
+        Returns:
+            int: The number of users in the user data
+        """
+        return len(self.user_data)
+    
     def get_users(self) -> list:
         """ Gets a list of all the users in the user data
 

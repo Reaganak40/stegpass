@@ -291,6 +291,9 @@ class AddPasswordWindow(tk.Frame):
             path_to_save = filedialog.asksaveasfilename(defaultextension=".bmp", filetypes=[("BMP files", "*.bmp")], initialfile=image_name)
         else:
             path_to_save = user_manager.get_password_folder_path(username)
+            
+        if len(path_to_save) == 0:
+            return False
         
         # save password
         PasswordCreator().store_password(username, password, self.original_path_to_image, path_to_save)

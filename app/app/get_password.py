@@ -16,6 +16,7 @@ from app.utils.utils import is_valid_sha256_hash, run_subprocess, fork_to_login,
 from app.utils.utility_fetcher import TargetType, UtilityFetcher
 from app.utils.config import SP_BUILD_TYPE
 from app.utils.user_manager import UserManager
+from app.utils.singleton import TSSingleton
 
 def open_password_form(on_start, on_end):
     """ Opens a file dialog to select an image file and retrieves a password from it
@@ -47,7 +48,9 @@ def open_password_form(on_start, on_end):
     if exit_code == 0:
         notify_user(output)
     elif exit_code == 4:
-        show_error_message("Could not recover password.")
+        show_error_message(output)
+    elif exit_code == 8:
+        return # do nothing (user canceled login)
     else:
         show_error_message(f'Encountered unexpected utility error: {output}\nExit code: {exit_code}')
 
@@ -71,6 +74,7 @@ def get_password(image_path, username = None) -> tuple[int, str]:
         5:  Unsupported target type
         6:  Bad hash
         7:  Bad config
+        8:  Canceled Login
     """
     # check if image path is relative or absolute
     if not os.path.isabs(image_path):
@@ -95,7 +99,7 @@ def get_password(image_path, username = None) -> tuple[int, str]:
         user_hash = UserManager().get_user_pass_hash(username)
         
     if user_hash is None:
-        return 4, "Could not recover password: Failed to login."
+        return 8, "Could not recover password: Failed to login."
     
     if not is_valid_sha256_hash(user_hash):
         return 6, "Error: The user hash is not a valid SHA-256 hash."
@@ -111,6 +115,10 @@ def get_password(image_path, username = None) -> tuple[int, str]:
     
     return exit_code, stdout
 
+# ToastNotifier singleton class
+class ToastNotifierSingleton(ToastNotifier, metaclass=TSSingleton):
+    pass
+
 def notify_user(password : str):
     """ Notifies the user of the password, copies it to the clipboard, and clears the clipboard after 30 seconds
 
@@ -124,10 +132,13 @@ def notify_user(password : str):
         show_error_message(f"An error occurred while copying the password to the clipboard.")
         return
     
-    ToastNotifier().show_toast(
+    # we must make this a singleton to avoid multiple toasts in quick succession
+    notifier = ToastNotifierSingleton()
+    
+    notifier.show_toast(
         "Password Copied to Clipboard",
         "It will be cleared in 30 seconds.",
-        duration = 10,
+        duration = 7,
         icon_path = get_path_to_icon(),
         threaded=True
     )

@@ -363,3 +363,7 @@ class BaseGui:
         
         self.title_bar_icon.config(image=self.icon_image)
         
+    def quit(self):
+        """ Quit the application.
+        """
+        self.root.quit()

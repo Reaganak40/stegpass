@@ -39,6 +39,7 @@ def GuiApp():
     )
     
     content = app.get_content()
+    
     app.set_background_color(THEME.BG)
     
     def show_add_user_page():

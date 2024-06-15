@@ -7,7 +7,7 @@ All notable changes to StegPass will be documented in this file.
 ### Added
 
 - `Get Password` to the gui to make it MUCH easier to retreive passwords from images.
-- Active user cache to simplify the get/add password process, remove repeated logins.
+- Active user cache to simplify the get/add password process, removing the need for repeated logins.
 - This CHANGELOG to more easily document changes between versions.
 - StegPass icon is now present in the application.
 
@@ -16,11 +16,13 @@ All notable changes to StegPass will be documented in this file.
 - Complete change in the GUIs handling of the title bar and menu bar (created from scratch)
 - Users cannot access parts of the app until an account is created.
 - The UI layout for creating passwords.
+- The UI layout for the login screen
 
 ### Fixed
 
 - A formatting bug in the `Add Password` form that moves the button off the screen.
 - A bug where saving passwords fails when not saving to password folder.
+- A bug where toast notifier crashes when getting multiple passwords in quick succession.
 
 ## [0.0.1-alpha] - 6/12/2024
 

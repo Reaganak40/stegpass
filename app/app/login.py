@@ -11,129 +11,12 @@ from tkinter import ttk
 from tkinterdnd2 import TkinterDnD
 
 # Project Imports
+from app.widgets.base_gui import BaseGui
 from app.widgets.theme import THEME
 from app.utils.user_manager import UserManager
 from app.utils.utils import sha256_hash, show_error_message, get_path_to_icon
 
-class Application(TkinterDnD.Tk):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.title("StegPass - Login")
-        self.geometry(f"{450}x{225}")
-        self.resizable(False, False)
-        self.config(bg=THEME.BG)
-        self.iconbitmap(get_path_to_icon())
-        
-        # Set DPI awareness (makes the window look better on high resolution screens)
-        try:
-            from ctypes import windll
-            windll.shcore.SetProcessDpiAwareness(1)
-        except:
-            pass
-        
-        # No password hash yet
-        self.password_hash = None
-        
-        # Check for default user
-        users = UserManager().get_users()
-        self.selected_user = args[0]
-        
-        # If no default user, use combo box to select user from list
-        if self.selected_user is None:
-            
-            # Combobox to select a user
-            self.user_combobox = ttk.Combobox(self, values=users, font=(THEME.FONT, 12), state='readonly', takefocus=False, width=25)
-            self.user_combobox.set("Select User")
-            
-            # Bind an event to remove focus after selection
-            self.user_combobox.bind("<<ComboboxSelected>>", self.on_user_selected)
-        else:
-            
-            if self.selected_user not in users:
-                show_error_message(f"The user '{self.selected_user}' was not found. Please select a user from the list.")
-                exit(-1)
-            
-            # still use the combobox but disable and show the default user
-            self.user_combobox = ttk.Combobox(self, values=[self.selected_user], font=(THEME.FONT, 12), takefocus=False, width=25,
-                                              foreground="grey", state='disabled')
-            self.user_combobox.set(self.selected_user)
-        
-        self.user_combobox.pack(padx=5, pady = 20, anchor='s')
-        
-        # Password entry
-        self.password_entry = tk.Entry(self, width=28, fg='grey', font=(THEME.FONT, 12))
-        self.password_entry.pack(pady=5, anchor='s')
-        self.password_entry.insert(0, "Enter Password")
-        self.password_entry.bind("<FocusIn>", self.clear_password_entry)
-        self.password_entry.bind("<FocusOut>", self.restore_password_entry)
-        self.password_entry.bind("<KeyRelease>", lambda e: self.check_if_ready_to_submit())
-        self.password_entry.bind("<Return>", lambda e: self.attempt_login())
-        
-        # Checkbox to show password
-        self.show_password = tk.IntVar()
-        self.show_password_checkbox = tk.Checkbutton(self, text="Show Password", variable=self.show_password, command=self.toggle_password_visibility, 
-                                                     font=(THEME.FONT, 12), bg=THEME.BG, activebackground=THEME.BG, activeforeground=THEME.TEXT_COLOR, selectcolor=THEME.BG, fg=THEME.TEXT_COLOR)
-        self.show_password_checkbox.pack(pady = 5, padx=90, anchor='w')
-        
-        # Incorrect password label (don't show at start)
-        self.incorrect_password_label = tk.Label(self, text="** Incorrect Password **", font=(THEME.FONT, 12), fg='red', bg=THEME.BG, disabledforeground=THEME.BG)
-        self.incorrect_password_label.pack(pady=5, anchor='s')
-        self.incorrect_password_label.config(state='disabled')
-        
-        # Button to submit (login)
-        self.login_button = tk.Button(self, text="Login", command=self.attempt_login, font=(THEME.FONT, 12), width=15, height=2, bg=THEME.PRIMARY_COLOR, fg=THEME.TEXT_COLOR)
-        self.login_button.pack(side=tk.BOTTOM, pady=10)
-        
-        # Disable button
-        self.login_button.config(state='disabled')
-    
-    
-    def on_user_selected(self, event):
-        self.selected_user = self.user_combobox.get()
-        self.check_if_ready_to_submit()
-        
-    def get_password_hash(self):
-        return self.password_hash
-    
-    def clear_password_entry(self, event = None):
-        if self.password_entry.get() == "Enter Password":
-            self.password_entry.delete(0, tk.END)
-            
-            if self.show_password.get() == 1:
-                self.password_entry.config(fg='black', show='')
-            else:
-                self.password_entry.config(fg='black', show='*')
-    
-    def restore_password_entry(self, event = None):
-        if not self.password_entry.get():
-            self.password_entry.insert(0, "Enter Password")
-            self.password_entry.config(fg='grey', show='')
-            
-    def toggle_password_visibility(self):
-        if self.show_password.get() == 1 or self.password_entry.get() == "Enter Password":
-            self.password_entry.config(show='')
-        else:
-            self.password_entry.config(show='*')
-    
-    def check_if_ready_to_submit(self):
-        if self.password_entry.get() != "Enter Password" and len(self.password_entry.get()) > 0 and self.user_combobox.get() != "Select User":
-            self.login_button.config(state='normal')
-        else:
-            self.login_button.config(state='disabled')
-    
-    def attempt_login(self):
-        if self.selected_user is None:
-            return
-        
-        if not UserManager().check_password(self.selected_user, self.password_entry.get()):
-            self.incorrect_password_label.config(state='normal')
-            return
-
-        self.password_hash = sha256_hash(self.password_entry.get())
-        self.quit()
-
-
-def LogInApp(default_user : str) -> str:
+def LogInApp(default_user : str = None) -> str:
     """ Launches the login application
     
     Args:
@@ -142,10 +25,115 @@ def LogInApp(default_user : str) -> str:
     Returns:
         str: The hash of the master password. None if the user cancels the login process.
     """
-    app = Application(default_user)
-    app.mainloop()
+    app = BaseGui(
+        size = (450, 275),
+        resizable = (False, False),
+        icon = get_path_to_icon(),
+        title = "StegPass - Login"
+    )
+    content = app.get_content()
+    content.config(relief='solid', bd=1)    
     
-    return app.get_password_hash()
+    user_manager = UserManager()
+    
+    # No password hash yet
+    password_hash = None
+    
+    # Create and configure the select user combobox
+    if default_user is None:
+        if user_manager.count_users() == 0:
+            # NOTE: This is a bug. The user should not be forked to login if there are no users.
+            show_error_message("No users found. Please create a user first.")
+            return None
+        
+        # if no default user, use combo box to select user from list
+        users = user_manager.get_users()
+        user_combobox = ttk.Combobox(content, values=users, font=(THEME.FONT, 10), state='readonly', takefocus=False, width=25)
+        user_combobox.set("Select User")
+    else:
+        if not user_manager.check_user_exists(default_user):
+            show_error_message(f"The default user '{default_user}' was not found.")
+            return None
+        
+        # still use the combobox but disable and show the default user
+        user_combobox = ttk.Combobox(content, values=[default_user], font=(THEME.FONT, 10), takefocus=False, width=25, foreground="grey", state='disabled')
+        user_combobox.set(default_user)
+    user_combobox.pack(side='top', padx=5, pady = 20, anchor='s')
+    
+    # Password entry
+    password_entry = tk.Entry(content, width=28, fg='grey', font=(THEME.FONT, 10))
+    password_entry.pack(side='top', pady=(0, 5), anchor='s')
+    password_entry.insert(0, "Enter Password")
+    
+    def toggle_password_visibility():
+        """ Toggle the visibility of the password in the entry field
+        """
+        if show_password.get() == 1 or password_entry.get() == "Enter Password":
+            password_entry.config(show='')
+        else:
+            password_entry.config(show='*')
+    
+    # Checkbox to show password
+    show_password = tk.IntVar()
+    show_password_checkbox = tk.Checkbutton(content, text="Show Password", variable=show_password, command=toggle_password_visibility, 
+                                                    font=(THEME.FONT, 10), bg=THEME.BG, activebackground=THEME.BG, activeforeground=THEME.TEXT_COLOR, selectcolor=THEME.BG, fg=THEME.TEXT_COLOR)
+    show_password_checkbox.pack(side='top', pady = 5, padx=90, anchor='w')
+    
+    def clear_password_entry():
+        """ Clear the password entry field of default text
+        """
+        if password_entry.get() == "Enter Password":
+            password_entry.delete(0, tk.END)
+            
+            if show_password.get() == 1:
+                password_entry.config(fg='black', show='')
+            else:
+                password_entry.config(fg='black', show='*')
+    
+    def restore_password_entry():
+        """ Restore the default text to the password entry field
+        """
+        if not password_entry.get():
+            password_entry.insert(0, "Enter Password")
+            password_entry.config(fg='grey', show='')
+    
+    password_entry.bind("<FocusIn>", lambda e: clear_password_entry())
+    password_entry.bind("<FocusOut>", lambda e: restore_password_entry())
+    
+    # Bad login label (don't show at start)
+    bad_login_label = tk.Label(content, text="", font=(THEME.FONT, 10), fg='red', bg=THEME.BG)
+    bad_login_label.pack(side='top', pady=(0, 5), anchor='s')
+
+    def attempt_login():
+        selected_user = user_combobox.get()
+        if selected_user == "Select User":
+            bad_login_label.config(text="** Select a user to login **")
+            return
+        
+        password = password_entry.get()
+        if (password == "Enter Password" and password_entry.cget('fg') == 'grey') or len(password) == 0:
+            bad_login_label.config(text="** Enter a password to login **")
+            return
+        
+        if not UserManager().check_password(selected_user, password):
+            bad_login_label.config(text="** Incorrect Password **")
+            return
+
+        nonlocal password_hash
+        password_hash = sha256_hash(password)
+        app.quit()
+        
+    # Button to submit (login)
+    login_button = tk.Button(content, text="Login", command=attempt_login, font=(THEME.FONT, 12), width=15, bg=THEME.PRIMARY_COLOR, fg=THEME.TEXT_COLOR)
+    login_button.pack(side=tk.BOTTOM, pady=(0, 15))
+    login_button.bind("<Enter>", lambda e: login_button.config(bg=THEME.PRIMARY_COLOR_LIGHTEN))
+    login_button.bind("<Leave>", lambda e: login_button.config(bg=THEME.PRIMARY_COLOR))
+    
+    # Allow pressing enter to login
+    password_entry.bind("<Return>", lambda e: attempt_login())
+    
+    app.run()
+    return password_hash
 
 if __name__ == '__main__':
     raise Exception("This file is not meant to be run on its own. Please run app/main.py instead.")
