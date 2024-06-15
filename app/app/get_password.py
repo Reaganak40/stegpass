@@ -48,7 +48,7 @@ def open_password_form(on_start, on_end):
     if exit_code == 0:
         notify_user(output)
     elif exit_code == 4:
-        show_error_message(output)
+        show_error_message('Could not recover password')
     elif exit_code == 8:
         return # do nothing (user canceled login)
     else:
@@ -108,7 +108,11 @@ def get_password(image_path, username = None) -> tuple[int, str]:
     if target_type == TargetType.NOT_FOUND:
         return 5, "Error: Unsupported target type."
     
-    stdout, exit_code = run_subprocess(f'{UtilityFetcher.fetch_path(target_type)} -g "{image_path}" -h {user_hash}')
+    get_command = [UtilityFetcher.fetch_path(target_type), '-g', image_path, '-h', user_hash]
+    if get_command[0] is None:
+        return 7, "Error: Could not find the utility for the target type."
+    
+    stdout, exit_code = run_subprocess(get_command)
     
     if exit_code == -1:
         return -1, f'Encountered unexpected utility error: {stdout}'

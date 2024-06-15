@@ -109,6 +109,9 @@ class AddPasswordWindow(tk.Frame):
         Returns:
             str: An error message if the form is not ready to save
         """
+        if self.original_path_to_image is None:
+            return "* Please select an image"
+        
         if self.password_entry.get() == "Enter Password" and self.password_entry.cget("fg") == "grey":
             return "* Please enter a password"
         
@@ -118,8 +121,14 @@ class AddPasswordWindow(tk.Frame):
         if self.password_entry.get() != self.confirm_password_entry.get():
             return "* Passwords do not match"
         
-        if self.original_path_to_image is None:
-            return "* Please select an image"
+        # check for password requirements
+        password = self.password_entry.get()
+        
+        if len(password) < 6:
+            return "* Password must be at least 6 characters long"
+        
+        if '\0' in password:
+            return "* Password cannot contain null characters"    
         
         return ""
             
@@ -200,7 +209,7 @@ class AddPasswordWindow(tk.Frame):
         """
         
         if self.auto_gen_var.get():
-            length_of_password = random.randint(12, 16)
+            length_of_password = random.randint(16, 24)
             auto_password = self._generate_password(length_of_password)
             
             # set to normal to allow editing

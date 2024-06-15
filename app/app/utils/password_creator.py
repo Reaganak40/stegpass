@@ -2,6 +2,7 @@
 # ? Standard Imports
 import os
 import configparser
+from shlex import quote
 
 # Project Imports
 from app.utils.utils import fork_to_login, copy_file, show_error_message, run_subprocess
@@ -22,26 +23,24 @@ class PasswordCreator:
         Returns:
             bool: True if the password was stored successfully, false otherwise
         """
-        
         user_hash = UserManager().get_user_pass_hash(username)
         if user_hash is None:
             return False
-            
+        
         # Step 1: Get the target type and check if it is supported
         file_type = TargetType.GetTargetType(src)
         if file_type == TargetType.NOT_FOUND:
             show_error_message('Encountered an error while copying the file: File type not supported.')
             return False
             
-        # check if dest contains a file name
         if not os.path.isdir(dest):
             image_name = os.path.basename(dest)
             dest = os.path.dirname(dest)
         else:
             image_name = os.path.basename(src)
-            
+        
         # Step 2: Copy original image to destination
-        if src != os.path.join(dest, image_name):
+        if not os.path.samefile(src, os.path.join(dest, image_name)):
             copy_file(src, dest)
             
         # Step 3: Call backend utility to store the password in the image
@@ -52,15 +51,19 @@ class PasswordCreator:
         if not path_to_utility:
             show_error_message('Encountered an error while storing the password: Utility not found.')
             return False
+        
+        # ensure that the password is properly quoted to escape special characters
+        new_password = new_password.replace('"', '\\"')
     
         try:
-            command = f'{path_to_utility} -s "{dest}" "{new_password}" -h {user_hash}'
+            command = [path_to_utility, '-s', dest, new_password, '-h', user_hash]
             stdout, exit_code = run_subprocess(command)
         except Exception as e:
             show_error_message(f"An error occurred while storing the password: {e}")
             return False
         
         if exit_code != 0:
+            print(command)
             show_error_message(f"A utility error occurred while storing the password:\noutput:{stdout}\nExit Code:{exit_code}")
             return False
         

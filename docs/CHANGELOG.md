@@ -23,6 +23,8 @@ All notable changes to StegPass will be documented in this file.
 - A formatting bug in the `Add Password` form that moves the button off the screen.
 - A bug where saving passwords fails when not saving to password folder.
 - A bug where toast notifier crashes when getting multiple passwords in quick succession.
+- An input bug where using specific control characters in password breaks the command line parsing code.
+- An OS error when saving passwords to the same file as the image source.
 
 ## [0.0.1-alpha] - 6/12/2024
 

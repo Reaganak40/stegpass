@@ -136,28 +136,32 @@ def copy_file(src, dst) -> bool:
     
     return True
 
-def run_subprocess(command):
+def run_subprocess(command : list[str]):
     """ Runs a subprocess and captures the output
 
     Args:
-        command (str): The command to run
+        command (list[str]): The command to run
 
     Returns:
         int: The exit code of the subprocess
+    
+    Raises:
+        Exception: If the command is unable to run
     """
-    try:
-        # Run the subprocess and capture the output
-        result = subprocess.run(command, capture_output=True, text=True, shell=True)
-        
-        # Get the standard output
-        stdout = result.stdout
-        
-        # Get the exit code
-        exit_code = result.returncode
-        
-        return stdout, exit_code
-    except Exception as e:
-        return str(e), -1
+    # Run the subprocess and capture the output
+    result = subprocess.run(command, capture_output=True, text=True, shell=False)
+    
+    # Get the standard output
+    stdout = result.stdout
+    
+    # Get the exit code
+    exit_code = result.returncode
+    
+    if exit_code != 0:
+        if 'is not recognized as an internal or external command' in result.stderr:
+            raise Exception('Bad command')
+    
+    return stdout, exit_code
 
 def get_path_to_icon():
     """ Returns the path to the application icon
