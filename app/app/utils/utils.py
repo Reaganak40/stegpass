@@ -149,7 +149,8 @@ def run_subprocess(command : list[str]):
         Exception: If the command is unable to run
     """
     # Run the subprocess and capture the output
-    result = subprocess.run(command, capture_output=True, text=True, shell=False)
+    CREATE_NO_WINDOW = 0x08000000
+    result = subprocess.run(command, capture_output=True, text=True, shell=False, creationflags=CREATE_NO_WINDOW)
     
     # Get the standard output
     stdout = result.stdout

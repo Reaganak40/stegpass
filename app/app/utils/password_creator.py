@@ -33,20 +33,17 @@ class PasswordCreator:
             show_error_message('Encountered an error while copying the file: File type not supported.')
             return False
             
-        if not os.path.isdir(dest):
-            image_name = os.path.basename(dest)
-            dest = os.path.dirname(dest)
-        else:
+        if os.path.isdir(dest):
             image_name = os.path.basename(src)
-        
-        # Step 2: Copy original image to destination
-        if not os.path.samefile(src, os.path.join(dest, image_name)):
-            copy_file(src, dest)
+            dest = os.path.join(dest, image_name)
+        else:
+            image_name = os.path.basename(dest)
             
+        # Step 2: Copy original image to destination
+        if not os.path.exists(dest) or not os.path.samefile(src, dest):
+            copy_file(src, os.path.dirname(dest))
+
         # Step 3: Call backend utility to store the password in the image
-        dest = os.path.join(dest, image_name)
-        
-        # get path to appropriate backend utility
         path_to_utility = UtilityFetcher.fetch_path(file_type)
         if not path_to_utility:
             show_error_message('Encountered an error while storing the password: Utility not found.')
