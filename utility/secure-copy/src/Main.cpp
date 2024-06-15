@@ -7,7 +7,7 @@
 /// Copies text to the clipboard but avoids it from being used by clipboard monitoring applications.
 /// </summary>
 /// <param name="text">text to copy to the clipboard.</param>
-void CopyTextToClipboardCustom(const char* text) {
+void CopyTextToClipboardSecure(const char* text) {
 
     // Register the exclusion format
     UINT excludeFormat = RegisterClipboardFormat(L"ExcludeClipboardContentFromMonitorProcessing");
@@ -54,7 +54,7 @@ void CopyTextToClipboardCustom(const char* text) {
 
     // Set the clipboard data with the custom format
     if (SetClipboardData(excludeFormat, hGlobal) == nullptr) {
-        std::cerr << "Failed to set custom clipboard data" << std::endl;
+        std::cerr << "Failed to set clipboard data using exclude format" << std::endl;
         GlobalFree(hGlobal);
         CloseClipboard();
         return;
@@ -62,7 +62,7 @@ void CopyTextToClipboardCustom(const char* text) {
 
     // Also set the clipboard data as CF_TEXT so it can be used normally by other applications
     if (SetClipboardData(CF_TEXT, hGlobal) == nullptr) {
-        std::cerr << "Failed to set clipboard data" << std::endl;
+        std::cerr << "Failed to set clipboard data using CF_TEXT" << std::endl;
         GlobalFree(hGlobal);
         CloseClipboard();
         return;
@@ -81,7 +81,7 @@ int main(int argc, char* argv[]) {
 		return 1;
 	}
     
-    CopyTextToClipboardCustom(argv[1]);
+    CopyTextToClipboardSecure(argv[1]);
 
 	return 0;
 }

@@ -23,7 +23,7 @@ int main(int argc, char* argv[]) {
     std::string root_path = std::string(argv[0]);
     root_path = root_path.substr(0, root_path.find_last_of("\\/"));
 
-    root_path += "\\..\\..\\..\\bmp-steg\\";
+    root_path += "\\..\\..\\..\\utility\\bmp-steg\\";
     parser.SetRootPath(root_path.c_str());
 #endif
 
