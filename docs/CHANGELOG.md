@@ -2,7 +2,7 @@
 
 All notable changes to StegPass will be documented in this file.
 
-## [Unreleased]
+## [0.0.2] - 6/15/2024
 
 ### Added
 
@@ -10,6 +10,7 @@ All notable changes to StegPass will be documented in this file.
 - Active user cache to simplify the get/add password process, removing the need for repeated logins.
 - This CHANGELOG to more easily document changes between versions.
 - StegPass icon is now present in the application.
+- Backwards compatibility format for byte streams.
 
 ### Changed
 

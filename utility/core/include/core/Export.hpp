@@ -38,7 +38,7 @@
 ***************************************************************/
 #define SP_VERSION_MAJOR 0
 #define SP_VERSION_MINOR 0
-#define SP_VERSION_PATCH 1
+#define SP_VERSION_PATCH 2
 
 /***************************************************************
 * Define import/export macros for this module
