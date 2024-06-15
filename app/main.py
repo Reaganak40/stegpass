@@ -31,7 +31,7 @@ if __name__ == '__main__':
     # Launch the application according to the provided arguments
     # If no arguments are provided, launch the main application
     # --login [user]: Launch the login application
-    # --password [image_path] [optional:user_hash]: Retrieve a password from an image file
+    # --password [image_path] [optional:username]: Retrieve a password from an image file
     if len(sys.argv) == 1:
         GuiApp()
         

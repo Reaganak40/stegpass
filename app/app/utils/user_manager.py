@@ -4,7 +4,7 @@ import os
 import json
 
 # ? Project Imports
-from app.utils.utils import sha256_hash, convert_to_lowercase
+from app.utils.utils import sha256_hash, convert_to_lowercase, fork_to_login
 from app.utils.config import SP_BUILD_TYPE
 from app.utils.singleton import Singleton
 
@@ -202,4 +202,24 @@ class UserManager:
             listener (function): The function to call when the active user changes
         """
         self.set_active_user_callbacks[id] = (listener)
+        
+    def get_user_pass_hash(self, username):
+        """ Gets the real password hash for a user, either by the environment or after a forked login.
+
+        Args:
+            username (str): The username of the user
+
+        Returns:
+            str: The password hash for the user, or None if failed.
+        """
+        user_env_name = username + '_HASH'
+        
+        # Check if the user hash is in the environment variables, otherwise prompt the user to log in
+        if user_env_name not in os.environ:
+            user_hash = fork_to_login(username)
+            if user_hash is None:
+                return None
+            os.environ[user_env_name] = user_hash
+
+        return os.environ[user_env_name]
         

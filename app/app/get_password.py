@@ -15,6 +15,7 @@ from tkinter import filedialog
 from app.utils.utils import is_valid_sha256_hash, run_subprocess, fork_to_login, get_path_to_icon, show_error_message
 from app.utils.utility_fetcher import TargetType, UtilityFetcher
 from app.utils.config import SP_BUILD_TYPE
+from app.utils.user_manager import UserManager
 
 def open_password_form(on_start, on_end):
     """ Opens a file dialog to select an image file and retrieves a password from it
@@ -23,17 +24,24 @@ def open_password_form(on_start, on_end):
         on_start (func): The function to call when the password retrieval process starts
         on_end (func): The function to call when the password retrieval process ends
     """
+    on_start()
+    
+    user_manager = UserManager()
+    active_user = user_manager.get_active_user()
+    if active_user is not None:
+        password_folder = user_manager.get_password_folder_path(active_user)
+    else:
+        password_folder = ""
     
     # Create a file dialog to select an image file
-    on_start()
-    image_path = filedialog.askopenfilename(defaultextension=".bmp", filetypes=[("BMP files", "*.bmp")])
+    image_path = filedialog.askopenfilename(defaultextension=".bmp", filetypes=[("BMP files", "*.bmp")], initialdir=password_folder)
     
     if not image_path:
         on_end()
         return
     
     # Try to get the password from the image file    
-    exit_code, output = get_password(image_path)
+    exit_code, output = get_password(image_path, active_user)
     on_end()
     
     if exit_code == 0:
@@ -43,12 +51,12 @@ def open_password_form(on_start, on_end):
     else:
         show_error_message(f'Encountered unexpected utility error: {output}\nExit code: {exit_code}')
 
-def get_password(image_path, user_hash = None) -> tuple[int, str]:
+def get_password(image_path, username = None) -> tuple[int, str]:
     """ Retrieves a password from an image file
     
     Args:
         image_path (str): The path to the image file
-        user_hash (str): The hash of the user's master password
+        username (str): The username of the user, if not provided, use fork to login to choose a user
         
     Returns:
         tuple[int, str]: A tuple containing the exit code and the password (none when exit code is not 0).
@@ -76,15 +84,19 @@ def get_password(image_path, user_hash = None) -> tuple[int, str]:
         
         # on release build, the image path is relative where the app is executed (don't need to change it)
         
-    if user_hash is None:
-        user_hash = fork_to_login()
-        if user_hash is None:
-            return 4, "Could not recover password."
-        
     # Validate the image path and user hash
     if not os.path.exists(image_path):
         return 3, f"Error: The file '{image_path}' does not exist."
+    
+    
+    if username is None:
+        user_hash = fork_to_login()
+    else:
+        user_hash = UserManager().get_user_pass_hash(username)
         
+    if user_hash is None:
+        return 4, "Could not recover password: Failed to login."
+    
     if not is_valid_sha256_hash(user_hash):
         return 6, "Error: The user hash is not a valid SHA-256 hash."
     

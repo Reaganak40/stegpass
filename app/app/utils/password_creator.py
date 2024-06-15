@@ -6,10 +6,11 @@ import configparser
 # Project Imports
 from app.utils.utils import fork_to_login, copy_file, show_error_message, run_subprocess
 from app.utils.utility_fetcher import TargetType, UtilityFetcher
+from app.utils.user_manager import UserManager
 
 class PasswordCreator:
     
-    def store_password(self, username, new_password, src, dest) -> int:
+    def store_password(self, username, new_password, src, dest) -> bool:
         """ Stores a password in an image file
         
         Args:
@@ -19,24 +20,18 @@ class PasswordCreator:
             dest (str): The path to the destination image file
         
         Returns:
-            int: 0 if the password was stored successfully, 1 otherwise
+            bool: True if the password was stored successfully, false otherwise
         """
-        user_env_name = username + '_HASH'
         
-        # Check if the user hash is in the environment variables, otherwise prompt the user to log in
-        if user_env_name not in os.environ:
-            user_hash = fork_to_login(username)
-            if user_hash is None:
-                return 1
-            os.environ[user_env_name] = user_hash
-        else:
-            user_hash = os.environ[user_env_name]
+        user_hash = UserManager().get_user_pass_hash(username)
+        if user_hash is None:
+            return False
             
         # Step 1: Get the target type and check if it is supported
         file_type = TargetType.GetTargetType(src)
         if file_type == TargetType.NOT_FOUND:
             show_error_message('Encountered an error while copying the file: File type not supported.')
-            return 1
+            return False
             
         # check if dest contains a file name
         if not os.path.isdir(dest):
@@ -56,20 +51,20 @@ class PasswordCreator:
         path_to_utility = UtilityFetcher.fetch_path(file_type)
         if not path_to_utility:
             show_error_message('Encountered an error while storing the password: Utility not found.')
-            return 1
+            return False
     
         try:
             command = f'{path_to_utility} -s "{dest}" "{new_password}" -h {user_hash}'
             stdout, exit_code = run_subprocess(command)
         except Exception as e:
             show_error_message(f"An error occurred while storing the password: {e}")
-            return 1
+            return False
         
         if exit_code != 0:
             show_error_message(f"A utility error occurred while storing the password:\noutput:{stdout}\nExit Code:{exit_code}")
-            return 1
+            return False
         
-        return 0
+        return True
         
             
             

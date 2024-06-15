@@ -7,6 +7,7 @@ All notable changes to StegPass will be documented in this file.
 ### Added
 
 - `Get Password` to the gui to make it MUCH easier to retreive passwords from images.
+- Active user cache to simplify the get/add password process, remove repeated logins.
 - This CHANGELOG to more easily document changes between versions.
 - StegPass icon is now present in the application.
 

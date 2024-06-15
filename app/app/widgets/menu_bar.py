@@ -6,6 +6,7 @@ import tkinter as tk
 from app.widgets.theme import THEME
 from app.widgets.user_selector import UserSelector
 from app.pages.add_user import AddUserWindow
+from datetime import datetime
 
 def create_cascade_menu(parent, menu_items):
     popup = tk.Menu(parent, tearoff=0)
@@ -23,8 +24,17 @@ class PopupMenu(tk.Menu):
     def __init__(self, master, **kwargs):
         super().__init__(master, **kwargs)
         self.config(tearoff=0)
+        self.last_removed_time = None
         
     def on_menu_click(self, event):
+        
+        # Check if the menu was clicked too soon after being removed (10ms)
+        # This will allow the menu to be clicked again to remove it
+        if self.last_removed_time is not None:
+            time_diff = datetime.now() - self.last_removed_time
+            if time_diff.total_seconds() < 0.01:
+                return
+        
          # Get the absolute position of the widget on the screen
         widget_abs_x = event.widget.winfo_rootx()
         widget_abs_y = event.widget.winfo_rooty()
@@ -38,6 +48,7 @@ class PopupMenu(tk.Menu):
         
         try:
             self.tk_popup(spawn_pos_x, spawn_pos_y, 0)
+            self.last_removed_time = datetime.now()
         finally:
             self.grab_release()
 
