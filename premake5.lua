@@ -31,10 +31,14 @@ workspace "StegPass"
     }
 
 -- Visual Studio Projects
+include "app/premake5.lua"
 group "utility"
     include "utility/core/premake5.lua"
     include "utility/bmp-steg/premake5.lua"
     include "utility/secure-copy/premake5.lua"
+group "thirdparty"
+    include "thirdparty/glad/glad.lua"
+    include "thirdparty/glfw/glfw.lua"
 
 group "tests"
     include "tests/premake5.lua"
