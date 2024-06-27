@@ -39,6 +39,7 @@ group "utility"
 group "thirdparty"
     include "thirdparty/glad/glad.lua"
     include "thirdparty/glfw/glfw.lua"
+    include "thirdparty/imgui/imgui.lua"
 
 group "tests"
     include "tests/premake5.lua"

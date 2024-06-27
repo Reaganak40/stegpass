@@ -17,10 +17,13 @@ project "stegpass-app"
     ignoredefaultlibraries { "LIBCMTD" }
 
     files { 
+        "pch.h",
+        "pch.cpp",
         "src/**.hpp",
         "src/**.cpp",
      }
-    includedirs { 
+    includedirs {
+        "", -- root folder
         "src",
 
         -- core include folder
@@ -28,13 +31,18 @@ project "stegpass-app"
 
         -- thirdparty include folders
         "%{wks.location}/thirdparty/glfw/glfw/include",
-        "%{wks.location}/thirdparty/glad/glad/include"
+        "%{wks.location}/thirdparty/glad/glad/include",
+        "%{wks.location}/thirdparty/imgui/imgui",
+        "%{wks.location}/thirdparty/imgui/imgui/backends"
      }
 
     links { 
         "core",
-        "GLFW", "glad"
+        "GLFW", "glad", "ImGui"
     }
+
+    pchheader "pch.h"
+    pchsource "pch.cpp"
 
     postbuildcommands{
         GetProjectDLL("core"),
