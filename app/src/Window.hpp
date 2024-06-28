@@ -45,7 +45,7 @@ namespace WindowSpecs
 {
     int constexpr WIDTH = 800; // width of the window
     int constexpr HEIGHT = 600; // height of the window
-    constexpr const char* TITLE = "StegPass"; // title of the window
+    constexpr const char* TITLE = "Stegpass"; // title of the window
 };
 
 /// <summary>Starts the application and returns the window handle. </summary>
@@ -55,3 +55,15 @@ GLFWwindow* StartApp();
 /// <summary>Closes the application and cleans up resources. </summary>
 /// <param name="window">The window handle to close. </param>
 void CloseApp(GLFWwindow* window);
+
+/// <summary>
+/// Initializes the ImGui and configures it for the application.
+/// </summary>
+/// <param name="window">The window handle to initialize ImGui on. </param>
+void InitGui(GLFWwindow* window);
+
+/// <summary>
+/// Runs the application loop.
+/// </summary>
+/// <param name="window">The window handle to run the loop on. </param>
+void RunAppLoop(GLFWwindow* window);

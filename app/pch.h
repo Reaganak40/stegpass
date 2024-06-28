@@ -14,6 +14,8 @@
 // Standard Libraries
 #include <string>
 #include <exception>
+#include <unordered_map>
+#include <filesystem>
 
 // StegPass Configuration
 #include "Config.hpp"

@@ -10,31 +10,7 @@ int main(void)
     }
 
     /* Loop until the user closes the window */
-    while (!glfwWindowShouldClose(window))
-    {
-        /* Render here */
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        // Start the ImGui frame
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
-
-        // Create ImGui window
-        ImGui::Begin("Hello, ImGui!");
-        ImGui::Text("This is a simple example.");
-        ImGui::End();
-
-        // Render ImGui
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-        /* Swap front and back buffers */
-        glfwSwapBuffers(window);
-
-        /* Poll for and process events */
-        glfwPollEvents();
-    }
+    RunAppLoop(window);
 
     /* Tear down */
     CloseApp(window);

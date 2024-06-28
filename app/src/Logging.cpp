@@ -1,7 +1,14 @@
 #include "pch.h"
 #include "Logging.hpp"
+#include <spdlog/sinks/basic_file_sink.h>
 
 static std::shared_ptr<spdlog::logger> s_Logger = nullptr;
+
+// error handler on critical logs
+void CriticalErrorHandler(const std::string& msg)
+{
+	throw std::runtime_error(msg);
+}
 
 void sp::Log::Init()
 {
@@ -10,8 +17,12 @@ void sp::Log::Init()
 	}
 
 	spdlog::set_pattern("%^[%T]: %v%$");
-	s_Logger = spdlog::stdout_color_mt("StegPass");
+	s_Logger = spdlog::stdout_color_mt("Stegpass");
 	s_Logger->set_level(spdlog::level::trace);
+
+	// set error handling
+	s_Logger->set_error_handler(CriticalErrorHandler);
+
 }
 
 void sp::Log::Destroy()
