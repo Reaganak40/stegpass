@@ -6,6 +6,8 @@
 # include everything in docs
 !docs/
 
+# ImGui
+imgui.ini
 
 # Don't include image files
 *.bmp

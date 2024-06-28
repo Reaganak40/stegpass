@@ -29,11 +29,14 @@ project "stegpass-app"
         -- core include folder
         "%{wks.location}/utility/core/include",
 
-        -- thirdparty include folders
+        -- graphics include folders
         "%{wks.location}/thirdparty/glfw/glfw/include",
         "%{wks.location}/thirdparty/glad/glad/include",
         "%{wks.location}/thirdparty/imgui/imgui",
-        "%{wks.location}/thirdparty/imgui/imgui/backends"
+        "%{wks.location}/thirdparty/imgui/imgui/backends",
+
+        -- logging include folder
+         "%{wks.location}/thirdparty/spdlog/include"
      }
 
     links { 
