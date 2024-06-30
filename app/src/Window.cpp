@@ -2,50 +2,66 @@
 #include "Window.hpp"
 #include "Logging.hpp"
 #include "Widgets.hpp"
+#include "Pages.hpp"
 
-GLFWwindow* StartApp()
+/// <summary>
+/// Holds global window information.
+/// </summary>
+struct Window
+{
+    GLFWwindow* context = nullptr;
+    std::string title = "";
+};
+static Window app_window;
+
+void InitGui();
+
+bool StartApp()
 {
     /* Initialize logging */
     SP_INIT_LOG();
     SP_LOG_TRACE("Starting StegPass v.{}.{}.{}",
         SP_VERSION_MAJOR, SP_VERSION_MINOR, SP_VERSION_PATCH);
 
-    GLFWwindow* window = nullptr;
-
     /* Initialize the library */
     if (!glfwInit())
-        return nullptr;
+    {
+        SP_LOG_CRITICAL("Failed to initialize GLFW.");
+        return false;
+    }
 
     /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(
+    app_window.context = glfwCreateWindow(
         WindowSpecs::WIDTH, WindowSpecs::HEIGHT,
         WindowSpecs::TITLE, NULL, NULL);
+    app_window.title = WindowSpecs::TITLE;
 
-    if (!window)
+    if (!app_window.context)
     {
         glfwTerminate();
-        return nullptr;
+        SP_LOG_CRITICAL("Failed to create window.");
+        return false;
     }
 
     /* Make the window's context current */
-    glfwMakeContextCurrent(window);
+    glfwMakeContextCurrent(app_window.context);
     SP_LOG_TRACE("Window created successfully.");
 
     // Load all OpenGL functions using the glfw loader function
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-        throw std::exception("Failed to initialize glad extension");
-        return nullptr;
+        SP_LOG_CRITICAL("Failed to initialize GLAD.");
+        return false;
     }
     SP_LOG_INFO("OpenGL Version: {}", std::string((char*)glGetString(GL_VERSION)));
     
     // Initialize ImGui
-    InitGui(window);
+    InitGui();
     SP_LOG_TRACE("ImGui initialized successfully.");
     
-    return window;
+    return true;
 }
 
-void CloseApp(GLFWwindow* window)
+void CloseApp()
 {
     // Cleanup
     ImGui_ImplOpenGL3_Shutdown();
@@ -53,14 +69,14 @@ void CloseApp(GLFWwindow* window)
     ImGui::DestroyContext();
     SP_LOG_TRACE("ImGui shutdown successfully.");
 
-    glfwDestroyWindow(window);
+    glfwDestroyWindow(app_window.context);
     glfwTerminate();
     SP_LOG_TRACE("Window destroyed successfully.");
 
     SP_DESTROY_LOG();
 }
 
-void InitGui(GLFWwindow* window)
+void InitGui()
 {
     // Initialize ImGui
     IMGUI_CHECKVERSION();
@@ -69,7 +85,7 @@ void InitGui(GLFWwindow* window)
     ImGui::StyleColorsDark();
 
     // Setup Platform/Renderer bindings
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplGlfw_InitForOpenGL(app_window.context, true);
     ImGui_ImplOpenGL3_Init("#version 330");
 
     // Initialize gui resources
@@ -77,14 +93,13 @@ void InitGui(GLFWwindow* window)
 
     // Load and add fonts
     (void)sp::FontManager::AddFont("OpenSans", "res/Open_Sans/OpenSans-VariableFont_wdth,wght.ttf", 20.0f);
+    (void)sp::FontManager::AddFont("PasswordDots", "res/password-dots/password-dots.ttf", 12.0f);
 }
 
-void RunAppLoop(GLFWwindow* window)
+void RunAppLoop()
 {
-    ImFont* openSans = sp::FontManager::GetFont("OpenSans", 20.0f);
-    
     /* Loop until the user closes the window */
-    while (!glfwWindowShouldClose(window))
+    while (!glfwWindowShouldClose(app_window.context))
     {
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT);
@@ -93,25 +108,27 @@ void RunAppLoop(GLFWwindow* window)
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
-
-        ImGui::PushFont(openSans);
-        sp::DrawMenuBar();
-
-        // Create ImGui window
-        ImGui::Begin("Hello, ImGui!");
-        ImGui::Text("This is a simple example.");
-        ImGui::End();
-
-        ImGui::PopFont();
+        
+        // Draw the current page
+        sp::DrawAddPasswordPage();
 
         // Render ImGui
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         /* Swap front and back buffers */
-        glfwSwapBuffers(window);
+        glfwSwapBuffers(app_window.context);
 
         /* Poll for and process events */
         glfwPollEvents();
     }
+}
+
+void SetWindowTitle(const char* title)
+{
+    if (app_window.title != title)
+	{
+		glfwSetWindowTitle(app_window.context, title);
+		app_window.title = title;
+	}
 }

@@ -4,16 +4,25 @@
 int main(void)
 {
     /* Build up */
-    GLFWwindow* window = StartApp();
-    if (!window) {
+    if (!StartApp()) {
 		return -1;
     }
 
     /* Loop until the user closes the window */
-    RunAppLoop(window);
+    RunAppLoop();
 
     /* Tear down */
-    CloseApp(window);
+    CloseApp();
 
     return 0;
 }
+
+#ifdef SP_RELEASE
+#include <Windows.h>
+
+int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+{
+    return main();
+}
+
+#endif

@@ -33,11 +33,6 @@
 
 #pragma once
 
-/***************************************************************
-* Forward Declarations
-***************************************************************/
-struct GLFWwindow;
-
 /// <summary>
 /// Contains the window specifications for the application.
 /// </summary>
@@ -49,21 +44,17 @@ namespace WindowSpecs
 };
 
 /// <summary>Starts the application and returns the window handle. </summary>
-/// <returns>The created window handle, or nullptr if something went wrong.</returns>
-GLFWwindow* StartApp();
+/// <returns>True if the application started successfully, false otherwise. </returns>
+[[nodiscard]] bool StartApp();
 
-/// <summary>Closes the application and cleans up resources. </summary>
-/// <param name="window">The window handle to close. </param>
-void CloseApp(GLFWwindow* window);
-
-/// <summary>
-/// Initializes the ImGui and configures it for the application.
-/// </summary>
-/// <param name="window">The window handle to initialize ImGui on. </param>
-void InitGui(GLFWwindow* window);
+/// <summary>Closes the running application and cleans up resources. </summary>
+void CloseApp();
 
 /// <summary>
 /// Runs the application loop.
 /// </summary>
-/// <param name="window">The window handle to run the loop on. </param>
-void RunAppLoop(GLFWwindow* window);
+void RunAppLoop();
+
+/// <summary>Sets the title of the window.</summary>
+/// <param name="title">The title to set. </param>
+void SetWindowTitle(const char* title);

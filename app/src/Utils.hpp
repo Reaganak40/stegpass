@@ -1,5 +1,5 @@
 /***************************************************************/
-/*  app/Config.hpp                                             */
+/*  app/Utils.hpp                                              */
 /* *************************************************************/
 /*                 This file is a part of:                     */
 /*             -- StegPass: Password Manager --                */
@@ -34,27 +34,21 @@
 #pragma once
 
 /***************************************************************
-* Define the StegPass Version
+* Forward Declarations
 ***************************************************************/
-#define SP_VERSION_MAJOR 0
-#define SP_VERSION_MINOR 1
-#define SP_VERSION_PATCH 0
 
-/***************************************************************
-* Detect spdlog availability
-***************************************************************/
-#ifndef SP_DISABLE_LOGGING
-	#if !__has_include("spdlog/spdlog.h")
-		#pragma message("spdlog.h not found, logging is disabled.") 
-		#define SP_DISABLE_LOGGING
-	#elif defined(SP_RELEASE)
-		#pragma message("compiling in release mode, logging is disabled.") 
-		#define SP_DISABLE_LOGGING
-	#endif
-#endif
+namespace sp {
 
+	/// <summary>
+	/// Gets the position of a ImGui window by its ID.
+	/// </summary>
+	/// <param name="windowID">The ID of the window. </param>
+	/// <returns> The position of the window. </returns>
+	ImVec2 GetWindowPositionByID(const char* windowID);
 
-/***************************************************************
-* Global Defines
-***************************************************************/
-#define SP_MAX_PASSWORD_LENGTH 255
+	/// <summary>
+	/// Gets the size of the main menu bar.
+	/// </summary>
+	/// <returns>The size of the main menu bar. </returns>
+	ImVec2 GetMenuBarSize();
+}

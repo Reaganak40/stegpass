@@ -2,6 +2,8 @@
 #include "Logging.hpp"
 #include <spdlog/sinks/basic_file_sink.h>
 
+#ifndef SP_DISABLE_LOGGING
+
 static std::shared_ptr<spdlog::logger> s_Logger = nullptr;
 
 // error handler on critical logs
@@ -43,3 +45,5 @@ spdlog::logger& sp::Log::GetLogger()
 
 	return *s_Logger;
 }
+
+#endif // !SP_DISABLE_LOGGING

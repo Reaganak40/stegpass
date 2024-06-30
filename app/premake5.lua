@@ -9,7 +9,6 @@
 project_name = "stegpass-app"
 
 project "stegpass-app"
-    kind "ConsoleApp"
     language "C++"
     uuid (os.uuid(project_name .. "UUID"))
     targetdir (binFolder)
@@ -46,11 +45,12 @@ project "stegpass-app"
 
     pchheader "pch.h"
     pchsource "pch.cpp"
+    ignoredefaultlibraries { "LIBCMT" }
 
     postbuildcommands{
         GetProjectDLL("core"),
     }
-
+    
     filter "system:windows"
         cppdialect "C++20"
         staticruntime "On"
@@ -62,6 +62,7 @@ project "stegpass-app"
         }
 
     filter "configurations:Debug"
+        kind "ConsoleApp"
         symbols "On"
         staticruntime "off"
         runtime "Debug"
@@ -71,6 +72,7 @@ project "stegpass-app"
         }   
 
     filter "configurations:Release"
+        kind "WindowedApp"
         optimize "On"
         staticruntime "off"
         runtime "Release"

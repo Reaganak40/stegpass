@@ -33,12 +33,26 @@
 
 #pragma once
 
+/// <summary>
+/// Contains the aliases for the widgets in the application.
+/// </summary>
+namespace alias {
+
+	constexpr const char* MENU_BAR = "menu_bar";
+	constexpr const char* ADD_PASSWORD_FORM = "add_password_form";
+}
+
 namespace sp {
 
 	/// <summary>
 	/// Draws the main menu bar for the application.
 	/// </summary>
 	void DrawMenuBar();
+
+	/// <summary>
+	/// Draws the 'Add Password' form, which allows the user to add a new password.
+	/// </summary>
+	void DrawAddPasswordForm();
 
 	/// <summary>
 	/// Manages the fonts for the application.

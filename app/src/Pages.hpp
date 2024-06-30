@@ -1,5 +1,5 @@
 /***************************************************************/
-/*  app/Config.hpp                                             */
+/*  app/Pages.hpp                                              */
 /* *************************************************************/
 /*                 This file is a part of:                     */
 /*             -- StegPass: Password Manager --                */
@@ -34,27 +34,13 @@
 #pragma once
 
 /***************************************************************
-* Define the StegPass Version
+* Forward Declarations
 ***************************************************************/
-#define SP_VERSION_MAJOR 0
-#define SP_VERSION_MINOR 1
-#define SP_VERSION_PATCH 0
 
-/***************************************************************
-* Detect spdlog availability
-***************************************************************/
-#ifndef SP_DISABLE_LOGGING
-	#if !__has_include("spdlog/spdlog.h")
-		#pragma message("spdlog.h not found, logging is disabled.") 
-		#define SP_DISABLE_LOGGING
-	#elif defined(SP_RELEASE)
-		#pragma message("compiling in release mode, logging is disabled.") 
-		#define SP_DISABLE_LOGGING
-	#endif
-#endif
+namespace sp {
 
-
-/***************************************************************
-* Global Defines
-***************************************************************/
-#define SP_MAX_PASSWORD_LENGTH 255
+	/// <summary>
+	/// Draws the 'Add Password' page for the application.
+	/// </summary>
+	void DrawAddPasswordPage();
+}
