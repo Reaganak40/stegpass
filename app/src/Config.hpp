@@ -58,3 +58,4 @@
 * Global Defines
 ***************************************************************/
 #define SP_MAX_PASSWORD_LENGTH 255
+#define SP_DEFAULT_FONT_SIZE 20.0f

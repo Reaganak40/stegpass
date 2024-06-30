@@ -44,11 +44,11 @@ namespace sp {
 	/// </summary>
 	/// <param name="windowID">The ID of the window. </param>
 	/// <returns> The position of the window. </returns>
-	ImVec2 GetWindowPositionByID(const char* windowID);
+	[[nodiscard]] ImVec2 GetWindowPositionByID(const char* windowID);
 
 	/// <summary>
 	/// Gets the size of the main menu bar.
 	/// </summary>
 	/// <returns>The size of the main menu bar. </returns>
-	ImVec2 GetMenuBarSize();
+	[[nodiscard]] ImVec2 GetMenuBarSize();
 }

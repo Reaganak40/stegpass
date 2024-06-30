@@ -86,6 +86,26 @@ namespace sp {
 		/// <param name="font_size">The size of the font.</param>
 		/// <returns>The font if it was found, nullptr otherwise.</returns>
 		static [[nodiscard]] ImFont* GetFont(const std::string& alias, float font_size);
+
+		/// <summary>
+		/// Creates a password font, only loading the '*' glyph from the resource path.
+		/// </summary>
+		/// <param name="alias">The alias for the font. </param>
+		/// <param name="resource_path">The path to the font resource. </param>
+		/// <param name="font_size">The size of the font. </param>
+		/// <returns>True if the font was added successfully, false otherwise. </returns>
+		static [[nodiscard]] bool AddPasswordFont(const std::string& alias, const std::string& resource_path, float font_size);
+		
+
+		/// <summary>
+		/// Adds an icon font to the font manager.
+		/// </summary>
+		/// <param name="alias">The alias for the font. </param>
+		/// <param name="resource_path">The path to the font resource. </param>
+		/// <param name="font_size">The size of the font. </param>
+		/// <returns>True if the font was added successfully, false otherwise. </returns>
+		static [[nodiscard]] bool AddIconFont(const std::string& alias, const std::string& resource_path, float font_size);
+	
 	private:
 		static FontManager* m_instance;
 		std::unordered_map<std::string, ImFont*> m_fonts;

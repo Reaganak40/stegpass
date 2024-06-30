@@ -53,11 +53,11 @@ bool StartApp()
         return false;
     }
     SP_LOG_INFO("OpenGL Version: {}", std::string((char*)glGetString(GL_VERSION)));
-    
+
     // Initialize ImGui
     InitGui();
     SP_LOG_TRACE("ImGui initialized successfully.");
-    
+
     return true;
 }
 
@@ -92,8 +92,10 @@ void InitGui()
     sp::FontManager::Init();
 
     // Load and add fonts
-    (void)sp::FontManager::AddFont("OpenSans", "res/Open_Sans/OpenSans-VariableFont_wdth,wght.ttf", 20.0f);
-    (void)sp::FontManager::AddFont("PasswordDots", "res/password-dots/password-dots.ttf", 12.0f);
+    (void)sp::FontManager::AddFont("OpenSans", "res/Open_Sans/OpenSans-VariableFont_wdth,wght.ttf", SP_DEFAULT_FONT_SIZE);
+    (void)sp::FontManager::AddPasswordFont("PasswordDots", "res/Open_Sans/OpenSans-VariableFont_wdth,wght.ttf", SP_DEFAULT_FONT_SIZE);
+    (void)sp::FontManager::AddIconFont("FontAwesome", "res/awesome/forkawesome-webfont.ttf", SP_DEFAULT_FONT_SIZE);
+    
 }
 
 void RunAppLoop()

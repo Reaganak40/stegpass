@@ -1,5 +1,7 @@
 #include "pch.h"
 #include "Utils.hpp"
+#include "Widgets.hpp"
+#include "Logging.hpp"
 
 ImVec2 sp::GetWindowPositionByID(const char* windowID)
 {
@@ -26,3 +28,4 @@ ImVec2 sp::GetMenuBarSize()
 
 	return size;
 }
+

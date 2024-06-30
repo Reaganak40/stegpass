@@ -20,6 +20,7 @@ project "stegpass-app"
         "pch.cpp",
         "src/**.hpp",
         "src/**.cpp",
+        "src/**.h",
      }
     includedirs {
         "", -- root folder
