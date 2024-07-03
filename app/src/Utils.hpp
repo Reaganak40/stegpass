@@ -58,4 +58,12 @@ namespace sp {
 	/// <param name="length">The length of the password. </param>
 	/// <returns>The generated password. </returns>
 	[[nodiscard]] std::string GeneratePassword(size_t length);
+
+	/// <summary>
+	/// Opens a file dialog to select a file.
+	/// </summary>
+	/// <param name="title">The title of the dialog. </param>
+	/// <param name="filter">The filter for the dialog. </param>
+	/// <returns>The path to the selected file. </returns>
+	[[nodiscard]] std::string OpenFileDialog(const std::string& title = "Open File", const std::string& filter = "All Files (*.*)\0*.*\0");
 }

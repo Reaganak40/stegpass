@@ -42,6 +42,18 @@
 
 namespace sp {
 
+	enum ImageFormat {
+		SP_IMAGE_FORMAT_UNSUPPORTED,
+		SP_IMAGE_FORMAT_BMP,
+	};
+
+	/// <summary>
+	/// Get the image format of a file.
+	/// </summary>
+	/// <param name="filename">The file to get the image format of. </param>
+	/// <returns>The image format of the file. </returns>
+	[[nodiscard]] ImageFormat GetImageFormat(const std::string& filename);
+
 	struct Image {
 		GLuint textureID = SP_NO_IMAGE_LOADED; // the texture ID for this image
 		int width = 0;   // the width of the image in pixels

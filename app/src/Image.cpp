@@ -89,3 +89,23 @@ ImVec2 sp::Image::GetSizeWithMaintainedAspectRatio(float maxWidth, float maxHeig
 
 	return ImVec2(newWidth, newHeight);
 }
+
+sp::ImageFormat sp::GetImageFormat(const std::string& filename)
+{
+    // get the extension of the file
+    size_t last_dot = filename.find_last_of('.');
+    if (last_dot == std::string::npos) {
+		return ImageFormat::SP_IMAGE_FORMAT_UNSUPPORTED;
+	}
+    std::string extension = filename.substr(last_dot + 1);
+
+    // convert the extension to lowercase
+    std::transform(extension.begin(), extension.end(), extension.begin(), [](unsigned char c) { return std::tolower(c); });
+
+    // check if the extension is supported
+    if (strcmp("bmp", extension.c_str()) == 0) {
+        return ImageFormat::SP_IMAGE_FORMAT_BMP;
+    }
+
+    return ImageFormat::SP_IMAGE_FORMAT_UNSUPPORTED;
+}

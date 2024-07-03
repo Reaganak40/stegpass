@@ -265,25 +265,41 @@ void sp::DrawImageViewer()
 
 	// create new ImGui window
 	ImGui::Begin("Image Viewer", NULL, window_flags);
-
+    
 	// load the image
     static sp::Image image;
 
     if (image.textureID == SP_NO_IMAGE_LOADED) {
-        image.LoadTextureFromFile("res/images/cat.bmp");
+
+        // display a message to load an image (centered)
+        ImVec2 text_size = ImGui::CalcTextSize("Click to load an image to view");
+        float text_x = (window_size.x - text_size.x) / 2.0f;
+        float text_y = (window_size.y - text_size.y) / 2.0f;
+        ImGui::SetCursorPos(ImVec2(text_x, text_y));
+        ImGui::Text("Click to load an image to view");
+
+        if (ImGui::IsWindowHovered() && ImGui::IsMouseClicked(0)) {
+            std::string image_path = OpenFileDialog("Open Image", "Image Files (*.bmp)\0*.bmp\0");
+
+            if (!image_path.empty() && (GetImageFormat(image_path) != ImageFormat::SP_IMAGE_FORMAT_UNSUPPORTED)) {
+                image.LoadTextureFromFile(image_path.c_str());
+            }
+        }
     }
+    else {
 
-    // determine max context width and height
-    float max_width = window_size.x - ImGui::GetStyle().WindowPadding.x * 2;
-    float max_height = window_size.y - ImGui::GetStyle().WindowPadding.y * 2;
-    ImVec2 image_size = image.GetSizeWithMaintainedAspectRatio(max_width, max_height);
+        // determine max context width and height
+        float max_width = window_size.x - ImGui::GetStyle().WindowPadding.x * 2;
+        float max_height = window_size.y - ImGui::GetStyle().WindowPadding.y * 2;
+        ImVec2 image_size = image.GetSizeWithMaintainedAspectRatio(max_width, max_height);
 
-    // center the image in the window
-    ImVec2 image_pos = ImVec2((max_width - image_size.x) / 2.0f, (max_height - image_size.y) / 2.0f);
-    ImGui::SetCursorPos(ImVec2(image_pos.x + ImGui::GetStyle().WindowPadding.x, image_pos.y + ImGui::GetStyle().WindowPadding.y));
+        // center the image in the window
+        ImVec2 image_pos = ImVec2((max_width - image_size.x) / 2.0f, (max_height - image_size.y) / 2.0f);
+        ImGui::SetCursorPos(ImVec2(image_pos.x + ImGui::GetStyle().WindowPadding.x, image_pos.y + ImGui::GetStyle().WindowPadding.y));
 
-    // display the image
-    ImGui::Image((void*)(intptr_t)image.textureID, image_size);
+        // display the image
+        ImGui::Image((void*)(intptr_t)image.textureID, image_size);
+    }
 
 	// end the ImGui window
 	ImGui::End();
