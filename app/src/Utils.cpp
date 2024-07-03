@@ -29,3 +29,17 @@ ImVec2 sp::GetMenuBarSize()
 	return size;
 }
 
+std::string sp::GeneratePassword(size_t length)
+{
+    std::string password;
+	password.reserve(length);
+
+	// Generate a random password
+	for (size_t i = 0; i < length; i++)
+	{
+		password.push_back((char)(rand() % 94 + 33));
+	}
+
+	return password;
+}
+

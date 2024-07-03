@@ -51,4 +51,11 @@ namespace sp {
 	/// </summary>
 	/// <returns>The size of the main menu bar. </returns>
 	[[nodiscard]] ImVec2 GetMenuBarSize();
+
+	/// <summary>
+	/// Creates a random password string
+	/// </summary>
+	/// <param name="length">The length of the password. </param>
+	/// <returns>The generated password. </returns>
+	[[nodiscard]] std::string GeneratePassword(size_t length);
 }

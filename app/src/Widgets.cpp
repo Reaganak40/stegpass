@@ -42,11 +42,17 @@ void sp::DrawMenuBar()
 
 void sp::DrawAddPasswordForm()
 {
+    // Set the window position and size for the form
     static ImVec2 window_pos = ImVec2(10.0f, GetMenuBarSize().y + 10.0f);
-    static ImVec2 window_size = ImVec2(400, 200);
+    static ImVec2 window_size = ImVec2(400, 400);
+
+    // fonts to be used in the form
     ImFont* password_font = FontManager::GetFont("PasswordDots", SP_DEFAULT_FONT_SIZE);
     ImFont* font_awesome = FontManager::GetFont("FontAwesome", SP_DEFAULT_FONT_SIZE);
 
+    // password configurations
+    static int pc_password_length = 16;
+    static bool pc_random_length = false;
 
     // Set flags for window form
     ImGuiWindowFlags window_flags = 0;
@@ -59,22 +65,35 @@ void sp::DrawAddPasswordForm()
     ImGui::SetNextWindowPos(window_pos);
     ImGui::SetNextWindowSize(window_size);
 
-	// Create ImGui window
+	// create new ImGui window
     ImGui::Begin(alias::ADD_PASSWORD_FORM, NULL, window_flags);
+
+    // calculate the width for the password fields to fill the window
+    static float field_width = 0.0f;
+    if (field_width == 0.0f) {
+        	field_width = window_size.x - ImGui::GetStyle().WindowPadding.x * 3;
+
+            ImGui::PushFont(font_awesome);
+            field_width -= (ImGui::CalcTextSize(ICON_FK_EYE).x + ImGui::GetStyle().FramePadding.x * 2);
+            ImGui::PopFont();
+    }
 	
-	// Add input fields
+	// determine if password should be shown in plain text
     static bool show_password_fields = false;
     auto update_button_text = [&]() {
 		return (show_password_fields ? std::string(ICON_FK_EYE) : std::string(ICON_FK_EYE_SLASH)) + "###show_password_button";
 	};
     static std::string show_password_button_text = update_button_text();
 
+    // enter password field
     static char password[SP_MAX_PASSWORD_LENGTH] = "";
     bool hide_password = !show_password_fields && strnlen_s(password, SP_MAX_PASSWORD_LENGTH) > 0;
   
     if (hide_password) ImGui::PushFont(password_font);
+    ImGui::PushItemWidth(field_width);
     ImGui::InputTextWithHint("##enter_password", "Enter Password", 
         password, SP_MAX_PASSWORD_LENGTH);
+    ImGui::PopItemWidth();
     if (hide_password)  ImGui::PopFont();
 
     // show password button
@@ -86,19 +105,77 @@ void sp::DrawAddPasswordForm()
 	}
     ImGui::PopFont();
 
+    // confirm password field
     static char confirm_password[SP_MAX_PASSWORD_LENGTH] = "";
     bool hide_confirm_password = !show_password_fields && strnlen_s(confirm_password, SP_MAX_PASSWORD_LENGTH) > 0;
     
     if (hide_confirm_password) ImGui::PushFont(password_font); 
+    ImGui::PushItemWidth(field_width);
     ImGui::InputTextWithHint("##confirm_password", "Confirm Password",
         confirm_password, SP_MAX_PASSWORD_LENGTH);
+    ImGui::PopItemWidth();
     if (hide_confirm_password)  ImGui::PopFont();
 
     // error message text
     static std::string error_label = "";
     ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), error_label.c_str());
 
-    // Center button at bottom of window
+    // auto-generate password button
+    ImGui::NewLine();
+    if (ImGui::Button("Auto-Generate")) {
+
+        size_t password_length = pc_password_length;
+        if (pc_random_length) {
+            password_length = rand() % (SP_MAX_PASSWORD_LENGTH - SP_MIN_PASSWORD_LENGTH) + SP_MIN_PASSWORD_LENGTH;
+        }
+        std::string new_password = GeneratePassword(password_length);
+
+        // copy the generated password to the password fields
+        strncpy_s(password, new_password.c_str(), SP_MAX_PASSWORD_LENGTH);
+        strncpy_s(confirm_password, new_password.c_str(), SP_MAX_PASSWORD_LENGTH);
+
+		SP_LOG_TRACE("Auto-generate password with length: {}", password_length);
+	}
+
+    // clear password fields and reset error message
+    auto clear_button_text = [&]() {
+        memset(password, 0, SP_MAX_PASSWORD_LENGTH);
+        memset(confirm_password, 0, SP_MAX_PASSWORD_LENGTH);
+        error_label.clear();
+    };
+
+    // clear password fields button
+    ImGui::SameLine();
+    if (ImGui::Button("Clear Fields")) {
+        clear_button_text();
+    }
+
+    // Create a collapsing header
+    ImGui::SetCursorPos(ImVec2(ImGui::GetStyle().WindowPadding.x, ImGui::GetCursorPos().y + 5));
+    static float random_length_checkbox_width = ImGui::CalcTextSize("Random Length").x + 
+        ImGui::GetFrameHeight() + ImGui::GetStyle().ItemInnerSpacing.x + ImGui::GetStyle().WindowPadding.x;
+    ImGuiTreeNodeFlags password_config_flags = ImGuiTreeNodeFlags_DefaultOpen;
+    if (ImGui::CollapsingHeader("Password Configuration", password_config_flags)) {
+        
+        // Create the slider for password length
+        ImGui::NewLine();
+        ImGui::Text("Password Length");
+        ImGuiSliderFlags slider_flags = ImGuiSliderFlags_AlwaysClamp;
+
+        ImGui::BeginDisabled(pc_random_length);
+        static float slider_width = ImGui::GetContentRegionAvail().x - random_length_checkbox_width;
+        ImGui::PushItemWidth(slider_width);
+        ImGui::SliderInt("##password_length_slider", &pc_password_length, 
+            SP_MIN_PASSWORD_LENGTH, SP_MAX_PASSWORD_LENGTH - 1, "%d", slider_flags);
+        ImGui::PopItemWidth();
+        ImGui::EndDisabled();
+
+        // Create the random length checkbox
+        ImGui::SameLine();
+        ImGui::Checkbox("Random Length", &pc_random_length);
+    }
+
+    // Center 'Add Password'button at bottom of window
     ImVec2 button_size = ImGui::CalcTextSize("Add Password");
     button_size.x += ImGui::GetStyle().FramePadding.x * 2;
     button_size.y += ImGui::GetStyle().FramePadding.y * 2;
@@ -127,13 +204,7 @@ void sp::DrawAddPasswordForm()
 	};
 
     auto on_add_password = [&]() {
-
-        // clear the input fields
-        memset(password, 0, SP_MAX_PASSWORD_LENGTH);
-        memset(confirm_password, 0, SP_MAX_PASSWORD_LENGTH);
-
-        // clear error label
-        error_label.clear();
+        clear_button_text();
     };
 
 	// process the form
