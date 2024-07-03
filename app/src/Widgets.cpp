@@ -2,6 +2,8 @@
 #include "Widgets.hpp"
 #include "Logging.hpp"
 #include "Utils.hpp"
+#include "Window.hpp"
+#include "Image.hpp"
 #include "IconsForkAwesome.h"
 
 void sp::DrawMenuBar()
@@ -44,7 +46,8 @@ void sp::DrawAddPasswordForm()
 {
     // Set the window position and size for the form
     static ImVec2 window_pos = ImVec2(10.0f, GetMenuBarSize().y + 10.0f);
-    static ImVec2 window_size = ImVec2(400, 400);
+    static ImVec2 window_size = ImVec2(WindowSpecs::WIDTH / 3 - (ImGui::GetStyle().WindowPadding.x * 1.7),
+        WindowSpecs::HEIGHT - GetMenuBarSize().y - (ImGui::GetStyle().WindowPadding.y * 2));
 
     // fonts to be used in the form
     ImFont* password_font = FontManager::GetFont("PasswordDots", SP_DEFAULT_FONT_SIZE);
@@ -185,8 +188,14 @@ void sp::DrawAddPasswordForm()
     ImGui::SetCursorPos(ImVec2(button_x, button_y));
 
     auto validate_entries = [&] () {
-		if (strnlen_s(password, SP_MAX_PASSWORD_LENGTH) == 0) {
+        size_t password_length = strnlen_s(password, SP_MAX_PASSWORD_LENGTH);
+		if (password_length == 0) {
 			error_label = "Password cannot be empty.";
+			return false;
+		}
+
+        if (password_length < SP_MIN_PASSWORD_LENGTH) {
+			error_label = "Password must be at least " + std::to_string(SP_MIN_PASSWORD_LENGTH) + " characters.";
 			return false;
 		}
 
@@ -212,7 +221,7 @@ void sp::DrawAddPasswordForm()
         // validate entries
         if (validate_entries()) {
             on_add_password();
-            SP_LOG_TRACE("Password added.");
+            SP_LOG_TRACE("Password added");
         }
         else {
 			SP_LOG_TRACE("Password form validation failed: '{}'", error_label);
@@ -222,6 +231,62 @@ void sp::DrawAddPasswordForm()
 	// End the ImGui window
 	ImGui::End();
 
+}
+
+void sp::DrawImageViewer()
+{
+    // set window position and size (next to the 'Add Password' form)
+    static ImVec2 window_pos = ImVec2(0, 0);
+    static ImVec2 window_size = ImVec2(
+        (WindowSpecs::WIDTH / 3 * 2) - (ImGui::GetStyle().WindowPadding.x * 1.7),
+        WindowSpecs::HEIGHT - GetMenuBarSize().y - (ImGui::GetStyle().WindowPadding.y * 2));
+
+    // get the position and size of the 'Add Password' form
+    if (window_pos.x == 0 && window_pos.y == 0) {
+        ImGui::Begin(alias::ADD_PASSWORD_FORM);
+        ImVec2 add_password_form_pos = ImGui::GetWindowPos();
+        ImVec2 add_password_form_size = ImGui::GetWindowSize();
+        ImGui::End();
+
+        window_pos.x = add_password_form_pos.x + add_password_form_size.x + ImGui::GetStyle().WindowPadding.x;
+        window_pos.y = add_password_form_pos.y;
+	}
+
+	// set flags for window form
+	ImGuiWindowFlags window_flags = 0;
+	window_flags |= ImGuiWindowFlags_NoTitleBar;
+	window_flags |= ImGuiWindowFlags_NoResize;
+	window_flags |= ImGuiWindowFlags_NoMove;
+	window_flags |= ImGuiWindowFlags_NoCollapse;
+
+	// set the window position and size
+	ImGui::SetNextWindowPos(window_pos);
+	ImGui::SetNextWindowSize(window_size);
+
+	// create new ImGui window
+	ImGui::Begin("Image Viewer", NULL, window_flags);
+
+	// load the image
+    static sp::Image image;
+
+    if (image.textureID == SP_NO_IMAGE_LOADED) {
+        image.LoadTextureFromFile("res/images/cat.bmp");
+    }
+
+    // determine max context width and height
+    float max_width = window_size.x - ImGui::GetStyle().WindowPadding.x * 2;
+    float max_height = window_size.y - ImGui::GetStyle().WindowPadding.y * 2;
+    ImVec2 image_size = image.GetSizeWithMaintainedAspectRatio(max_width, max_height);
+
+    // center the image in the window
+    ImVec2 image_pos = ImVec2((max_width - image_size.x) / 2.0f, (max_height - image_size.y) / 2.0f);
+    ImGui::SetCursorPos(ImVec2(image_pos.x + ImGui::GetStyle().WindowPadding.x, image_pos.y + ImGui::GetStyle().WindowPadding.y));
+
+    // display the image
+    ImGui::Image((void*)(intptr_t)image.textureID, image_size);
+
+	// end the ImGui window
+	ImGui::End();
 }
 
 /***************************************************************

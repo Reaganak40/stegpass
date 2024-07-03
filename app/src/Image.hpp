@@ -1,5 +1,5 @@
 /***************************************************************/
-/*  app/Window.hpp                                             */
+/*  app/Image.hpp                                              */
 /* *************************************************************/
 /*                 This file is a part of:                     */
 /*             -- StegPass: Password Manager --                */
@@ -33,28 +33,33 @@
 
 #pragma once
 
-/// <summary>
-/// Contains the window specifications for the application.
-/// </summary>
-namespace WindowSpecs
-{
-    int constexpr WIDTH = 1000; // width of the window
-    int constexpr HEIGHT = 750; // height of the window
-    constexpr const char* TITLE = "Stegpass"; // title of the window
-};
+/***************************************************************
+* Functions for loading and handling images.
+***************************************************************/
 
-/// <summary>Starts the application and returns the window handle. </summary>
-/// <returns>True if the application started successfully, false otherwise. </returns>
-[[nodiscard]] bool StartApp();
+// indicates that no image is loaded for an associated texture ID
+#define SP_NO_IMAGE_LOADED 0
 
-/// <summary>Closes the running application and cleans up resources. </summary>
-void CloseApp();
+namespace sp {
 
-/// <summary>
-/// Runs the application loop.
-/// </summary>
-void RunAppLoop();
+	struct Image {
+		GLuint textureID = SP_NO_IMAGE_LOADED; // the texture ID for this image
+		int width = 0;   // the width of the image in pixels
+		int height = 0;  // the height of the image pixels
+		
+		/// <summary>
+		/// Load a texture from a file.
+		/// </summary>
+		/// <param name="filename">The file to load the texture from.</param>
+		/// <returns>True if the texture was loaded successfully, false otherwise </returns> 
+		bool LoadTextureFromFile(const char* filename);
 
-/// <summary>Sets the title of the window.</summary>
-/// <param name="title">The title to set. </param>
-void SetWindowTitle(const char* title);
+		/// <summary>
+		/// Get the size of the image with the aspect ratio maintained.
+		/// </summary>
+		/// <param name="maxWidth">The maximum width of the image.</param>
+		/// <param name="maxHeight">The maximum height of the image.</param>
+		/// <returns>The size of the image with the aspect ratio maintained. </returns>
+		ImVec2 GetSizeWithMaintainedAspectRatio(float maxWidth, float maxHeight) const;
+	};
+}

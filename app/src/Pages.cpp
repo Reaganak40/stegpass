@@ -24,6 +24,7 @@ void sp::DrawAddPasswordPage()
     *   -- Page Content --
 	****************************/
     sp::DrawAddPasswordForm();
+    sp::DrawImageViewer();
     
 
     /***************************

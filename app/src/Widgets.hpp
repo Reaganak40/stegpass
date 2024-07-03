@@ -55,6 +55,11 @@ namespace sp {
 	void DrawAddPasswordForm();
 
 	/// <summary>
+	/// Draws the window to load and display the image that will be used to hide the passwords.
+	/// </summary>
+	void DrawImageViewer();
+
+	/// <summary>
 	/// Manages the fonts for the application.
 	/// </summary>
 	class FontManager

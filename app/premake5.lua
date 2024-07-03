@@ -18,6 +18,7 @@ project "stegpass-app"
     files { 
         "pch.h",
         "pch.cpp",
+
         "src/**.hpp",
         "src/**.cpp",
         "src/**.h",
@@ -34,6 +35,7 @@ project "stegpass-app"
         "%{wks.location}/thirdparty/glad/glad/include",
         "%{wks.location}/thirdparty/imgui/imgui",
         "%{wks.location}/thirdparty/imgui/imgui/backends",
+        "%{wks.location}/thirdparty/stb",
 
         -- logging include folder
          "%{wks.location}/thirdparty/spdlog/include"
@@ -46,6 +48,7 @@ project "stegpass-app"
 
     pchheader "pch.h"
     pchsource "pch.cpp"
+
     ignoredefaultlibraries { "LIBCMT" }
 
     postbuildcommands{
