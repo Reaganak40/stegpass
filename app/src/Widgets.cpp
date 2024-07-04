@@ -42,6 +42,16 @@ void sp::DrawMenuBar()
     }
 }
 
+/***************************************************************
+* ADD PASSWORD FORM
+***************************************************************/
+struct PasswordFormData {
+    sp::Image image;
+    std::string image_error_message;
+};
+// data shared across implementation functions
+static PasswordFormData password_form_data;
+
 void sp::DrawAddPasswordForm()
 {
     // Set the window position and size for the form
@@ -141,7 +151,7 @@ void sp::DrawAddPasswordForm()
 	}
 
     // clear password fields and reset error message
-    auto clear_button_text = [&]() {
+    auto clear_password_text = [&]() {
         memset(password, 0, SP_MAX_PASSWORD_LENGTH);
         memset(confirm_password, 0, SP_MAX_PASSWORD_LENGTH);
         error_label.clear();
@@ -150,7 +160,7 @@ void sp::DrawAddPasswordForm()
     // clear password fields button
     ImGui::SameLine();
     if (ImGui::Button("Clear Fields")) {
-        clear_button_text();
+        clear_password_text();
     }
 
     // Create a collapsing header
@@ -178,7 +188,7 @@ void sp::DrawAddPasswordForm()
         ImGui::Checkbox("Random Length", &pc_random_length);
     }
 
-    // Center 'Add Password'button at bottom of window
+    // Center 'Add Password' button at bottom of window
     ImVec2 button_size = ImGui::CalcTextSize("Add Password");
     button_size.x += ImGui::GetStyle().FramePadding.x * 2;
     button_size.y += ImGui::GetStyle().FramePadding.y * 2;
@@ -190,30 +200,46 @@ void sp::DrawAddPasswordForm()
     auto validate_entries = [&] () {
         size_t password_length = strnlen_s(password, SP_MAX_PASSWORD_LENGTH);
 		if (password_length == 0) {
-			error_label = "Password cannot be empty.";
+			error_label = "Password cannot be empty";
+            SP_LOG_TRACE("Password validation failed: Password cannot be empty.");
 			return false;
 		}
 
         if (password_length < SP_MIN_PASSWORD_LENGTH) {
 			error_label = "Password must be at least " + std::to_string(SP_MIN_PASSWORD_LENGTH) + " characters.";
+            SP_LOG_TRACE("Password validation failed: Password must be at least {} characters.", SP_MIN_PASSWORD_LENGTH);
 			return false;
 		}
 
 		if (strnlen_s(confirm_password, SP_MAX_PASSWORD_LENGTH) == 0) {
-			error_label = "Confirm Password cannot be empty.";
+			error_label = "Confirm Password cannot be empty";
+            SP_LOG_TRACE("Password validation failed: Confirm Password cannot be empty.");
 			return false;
 		}
 
 		if (strcmp(password, confirm_password) != 0) {
-			error_label = "Passwords do not match.";
+			error_label = "Passwords do not match";
+            SP_LOG_TRACE("Password validation failed: Passwords do not match.");
+			return false;
+		}
+
+        error_label.clear();
+
+        if (password_form_data.image.textureID == SP_NO_IMAGE_LOADED) {
+            password_form_data.image_error_message = "Please load an image to hide the password";
+            SP_LOG_TRACE("Password validation failed: No image loaded.");
 			return false;
 		}
 
 		return true;
 	};
 
+    // procedure when form is ready to be processed
     auto on_add_password = [&]() {
-        clear_button_text();
+
+        // clear all form entries
+        clear_password_text();
+        password_form_data.image.Reset();
     };
 
 	// process the form
@@ -222,9 +248,6 @@ void sp::DrawAddPasswordForm()
         if (validate_entries()) {
             on_add_password();
             SP_LOG_TRACE("Password added");
-        }
-        else {
-			SP_LOG_TRACE("Password form validation failed: '{}'", error_label);
         }
 	}
 
@@ -267,9 +290,31 @@ void sp::DrawImageViewer()
 	ImGui::Begin("Image Viewer", NULL, window_flags);
     
 	// load the image
-    static sp::Image image;
+    std::string image_path = "";
 
-    if (image.textureID == SP_NO_IMAGE_LOADED) {
+    // user dropped a file
+    if (DragNDrop::IsFileDropped()) {
+        if (ImGui::IsWindowHovered()) {
+            image_path = DragNDrop::GetDroppedFile();
+        }
+    }
+
+    // user clicked to open file dialog
+    else if (ImGui::IsWindowHovered() && ImGui::IsMouseClicked(0)) {
+        image_path = OpenFileDialog("Open Image", "Image Files (*.bmp)\0*.bmp\0");
+    }
+
+    if (!image_path.empty()) {
+        if (GetImageFormat(image_path) == ImageFormat::SP_IMAGE_FORMAT_UNSUPPORTED) {
+            password_form_data.image_error_message = "Cannot load: Unsupported image format.";
+        }
+        else {
+            password_form_data.image.LoadTextureFromFile(image_path.c_str());
+            password_form_data.image_error_message.clear();
+        }
+    }
+
+    if (password_form_data.image.textureID == SP_NO_IMAGE_LOADED) {
 
         // display a message to load an image (centered)
         ImVec2 text_size = ImGui::CalcTextSize("Click to load an image to view");
@@ -278,27 +323,28 @@ void sp::DrawImageViewer()
         ImGui::SetCursorPos(ImVec2(text_x, text_y));
         ImGui::Text("Click to load an image to view");
 
-        if (ImGui::IsWindowHovered() && ImGui::IsMouseClicked(0)) {
-            std::string image_path = OpenFileDialog("Open Image", "Image Files (*.bmp)\0*.bmp\0");
-
-            if (!image_path.empty() && (GetImageFormat(image_path) != ImageFormat::SP_IMAGE_FORMAT_UNSUPPORTED)) {
-                image.LoadTextureFromFile(image_path.c_str());
-            }
-        }
+        if (!password_form_data.image_error_message.empty()) {
+			// display error message
+			ImVec2 error_size = ImGui::CalcTextSize(password_form_data.image_error_message.c_str());
+			float error_x = (window_size.x - error_size.x) / 2.0f;
+			float error_y = text_y + text_size.y + ImGui::GetStyle().ItemSpacing.y;
+			ImGui::SetCursorPos(ImVec2(error_x, error_y));
+			ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), password_form_data.image_error_message.c_str());
+		}
     }
     else {
 
         // determine max context width and height
         float max_width = window_size.x - ImGui::GetStyle().WindowPadding.x * 2;
         float max_height = window_size.y - ImGui::GetStyle().WindowPadding.y * 2;
-        ImVec2 image_size = image.GetSizeWithMaintainedAspectRatio(max_width, max_height);
+        ImVec2 image_size = password_form_data.image.GetSizeWithMaintainedAspectRatio(max_width, max_height);
 
         // center the image in the window
         ImVec2 image_pos = ImVec2((max_width - image_size.x) / 2.0f, (max_height - image_size.y) / 2.0f);
         ImGui::SetCursorPos(ImVec2(image_pos.x + ImGui::GetStyle().WindowPadding.x, image_pos.y + ImGui::GetStyle().WindowPadding.y));
 
         // display the image
-        ImGui::Image((void*)(intptr_t)image.textureID, image_size);
+        ImGui::Image((void*)(intptr_t)password_form_data.image.textureID, image_size);
     }
 
 	// end the ImGui window
@@ -436,4 +482,58 @@ bool sp::FontManager::AddIconFont(const std::string& alias, const std::string& r
 	m_instance->m_fonts[key] = nFont;
 	SP_LOG_TRACE("'{}' font added successfully.", alias);
 	return true;
+}
+
+/***************************************************************
+* DRAGNDROP
+***************************************************************/
+
+sp::DragNDrop* sp::DragNDrop::m_instance = nullptr;
+
+void sp::DragNDrop::Init()
+{
+    if (m_instance != nullptr) {
+		return;
+	}
+
+    m_instance = new DragNDrop;
+}
+
+void sp::DragNDrop::Destroy()
+{
+    if (m_instance == nullptr) {
+		return;
+	}
+
+	delete m_instance;
+	m_instance = nullptr;
+}
+
+void sp::DragNDrop::OnFileDrop(GLFWwindow* window, int count, const char** paths)
+{
+    if (count == 0) {
+        return;
+    }
+
+    if (count > 1) {
+        SP_LOG_WARN("OnFileDrop() - Multiple files dropped, only the first file will be processed.");
+    }
+
+    m_instance->m_dropped_file = paths[0];
+    SP_LOG_TRACE("OnFileDrop() - File dropped: {}", m_instance->m_dropped_file);
+}
+
+bool sp::DragNDrop::IsFileDropped()
+{
+    return !m_instance->m_dropped_file.empty();
+}
+
+std::string sp::DragNDrop::GetDroppedFile()
+{
+    return m_instance->m_dropped_file;
+}
+
+void sp::DragNDrop::FlagHandled()
+{
+    m_instance->m_dropped_file.clear();
 }

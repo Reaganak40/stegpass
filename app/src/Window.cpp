@@ -58,21 +58,31 @@ bool StartApp()
     InitGui();
     SP_LOG_TRACE("ImGui initialized successfully.");
 
+    // enable file drops
+    sp::DragNDrop::Init();
+    glfwSetDropCallback(app_window.context, sp::DragNDrop::OnFileDrop);
+
     return true;
 }
 
 void CloseApp()
 {
-    // Cleanup
+    // tear down global resources
+    sp::FontManager::Destroy();
+    sp::DragNDrop::Destroy();
+
+    // tear down ImGui
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
     SP_LOG_TRACE("ImGui shutdown successfully.");
 
+    // tear down GLFW
     glfwDestroyWindow(app_window.context);
     glfwTerminate();
     SP_LOG_TRACE("Window destroyed successfully.");
 
+    // close the log
     SP_DESTROY_LOG();
 }
 
@@ -120,6 +130,9 @@ void RunAppLoop()
 
         /* Swap front and back buffers */
         glfwSwapBuffers(app_window.context);
+
+        // reset flags
+        sp::DragNDrop::FlagHandled();
 
         /* Poll for and process events */
         glfwPollEvents();

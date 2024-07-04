@@ -16,6 +16,10 @@ bool sp::Image::LoadTextureFromFile(const char* filename)
         return false;
     }
 
+    // delete and reset image data if texture was already loaded
+    if (textureID != 0) {
+        Reset();
+    }
 
     int channels;
     unsigned char* data = stbi_load(filename, &width, &height, &channels, 0);
@@ -88,6 +92,17 @@ ImVec2 sp::Image::GetSizeWithMaintainedAspectRatio(float maxWidth, float maxHeig
 	}
 
 	return ImVec2(newWidth, newHeight);
+}
+
+void sp::Image::Reset()
+{
+    if (textureID != 0) {
+		glDeleteTextures(1, &textureID);
+		textureID = SP_NO_IMAGE_LOADED;
+		width = 0;
+		height = 0;
+        filename = "";
+	}
 }
 
 sp::ImageFormat sp::GetImageFormat(const std::string& filename)

@@ -118,4 +118,52 @@ namespace sp {
 		FontManager() = default;
 		~FontManager() = default;
 	};
+
+	/// <summary>
+	/// Handles the drag and drop functionality for the application.
+	/// </summary>
+	class DragNDrop
+	{
+	public:
+		/// <summary>
+		/// Initializes the drag and drop functionality.
+		/// </summary>
+		static void Init();
+
+		/// <summary>
+		/// Releases the drag and drop functionality.
+		/// </summary>
+		static void Destroy();
+
+		/// <summary>
+		/// Handles the file drop event.
+		/// </summary>
+		/// <param name="window">The window that received the drop event.</param>
+		/// <param name="count">The number of files dropped. </param>
+		/// <param name="paths">The paths to the files dropped. </param>
+		static void OnFileDrop(GLFWwindow* window, int count, const char** paths);
+
+		/// <summary>
+		/// Checks if a file has been dropped this frame.
+		/// </summary>
+		/// <returns>True if a file has been dropped, false otherwise.</returns>
+		[[nodiscard]] static bool IsFileDropped();
+
+		/// <summary>
+		/// Gets the file that was dropped.
+		/// </summary>
+		/// <returns>The file that was dropped.</returns>
+		[[nodiscard]] static std::string GetDroppedFile();
+
+		/// <summary>
+		/// Sets the file dropped flag to false.
+		/// </summary>
+		static void FlagHandled();
+	private:
+		static DragNDrop* m_instance;
+		std::string m_dropped_file;
+
+		DragNDrop() = default;
+		~DragNDrop() = default;
+	};
 }

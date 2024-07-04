@@ -58,6 +58,7 @@ namespace sp {
 		GLuint textureID = SP_NO_IMAGE_LOADED; // the texture ID for this image
 		int width = 0;   // the width of the image in pixels
 		int height = 0;  // the height of the image pixels
+		std::string filename = ""; // the filename of the image
 		
 		/// <summary>
 		/// Load a texture from a file.
@@ -72,6 +73,11 @@ namespace sp {
 		/// <param name="maxWidth">The maximum width of the image.</param>
 		/// <param name="maxHeight">The maximum height of the image.</param>
 		/// <returns>The size of the image with the aspect ratio maintained. </returns>
-		ImVec2 GetSizeWithMaintainedAspectRatio(float maxWidth, float maxHeight) const;
+		[[nodiscard]] ImVec2 GetSizeWithMaintainedAspectRatio(float maxWidth, float maxHeight) const;
+
+		/// <summary>
+		/// Reset the image data.
+		/// </summary>
+		void Reset();
 	};
 }
