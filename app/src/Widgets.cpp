@@ -4,6 +4,7 @@
 #include "Utils.hpp"
 #include "Window.hpp"
 #include "Image.hpp"
+#include "Pages.hpp"
 #include "IconsForkAwesome.h"
 
 void sp::DrawMenuBar()
@@ -11,34 +12,30 @@ void sp::DrawMenuBar()
     // Create the main menu bar
     if (ImGui::BeginMainMenuBar())
     {
-        // Create a "File" menu
-        if (ImGui::BeginMenu("File"))
+        // Create a "View" menu to switch between pages
+        if (ImGui::BeginMenu("View"))
         {
             // Add menu items to the "File" menu
-            if (ImGui::MenuItem("Open", "Ctrl+O")) { /* Handle open action */ }
-            if (ImGui::MenuItem("Save", "Ctrl+S")) { /* Handle save action */ }
-            if (ImGui::MenuItem("Exit", "Alt+F4")) { /* Handle exit action */ }
+            if (ImGui::MenuItem("Add User", "Ctrl+U"))     { SetActivePage(Page::PageAddUser); }
+            if (ImGui::MenuItem("Add Password", "Ctrl+P")) { SetActivePage(Page::PageAddPassword); }
 
             // End the "File" menu
             ImGui::EndMenu();
         }
 
-        // Create an "Edit" menu
-        if (ImGui::BeginMenu("Edit"))
-        {
-            // Add menu items to the "Edit" menu
-            if (ImGui::MenuItem("Undo", "Ctrl+Z")) { /* Handle undo action */ }
-            if (ImGui::MenuItem("Redo", "Ctrl+Y", false, false)) { /* Handle redo action */ } // Disabled item
-            if (ImGui::MenuItem("Cut", "Ctrl+X")) { /* Handle cut action */ }
-            if (ImGui::MenuItem("Copy", "Ctrl+C")) { /* Handle copy action */ }
-            if (ImGui::MenuItem("Paste", "Ctrl+V")) { /* Handle paste action */ }
-
-            // End the "Edit" menu
-            ImGui::EndMenu();
-        }
-
         // End the main menu bar
         ImGui::EndMainMenuBar();
+
+        // handle keyboard shortcuts
+        ImGuiIO& io = ImGui::GetIO();
+        if (io.KeyCtrl) {
+            if (io.KeysDown[GLFW_KEY_U]) {
+                SetActivePage(Page::PageAddUser);
+            }
+            else if (io.KeysDown[GLFW_KEY_P]) {
+                SetActivePage(Page::PageAddPassword);
+            }
+        }
     }
 }
 
@@ -163,7 +160,7 @@ void sp::DrawAddPasswordForm()
         clear_password_text();
     }
 
-    // Create a collapsing header
+    // password configuration section
     ImGui::SetCursorPos(ImVec2(ImGui::GetStyle().WindowPadding.x, ImGui::GetCursorPos().y + 5));
     static float random_length_checkbox_width = ImGui::CalcTextSize("Random Length").x + 
         ImGui::GetFrameHeight() + ImGui::GetStyle().ItemInnerSpacing.x + ImGui::GetStyle().WindowPadding.x;
@@ -171,7 +168,6 @@ void sp::DrawAddPasswordForm()
     if (ImGui::CollapsingHeader("Password Configuration", password_config_flags)) {
         
         // Create the slider for password length
-        ImGui::NewLine();
         ImGui::Text("Password Length");
         ImGuiSliderFlags slider_flags = ImGuiSliderFlags_AlwaysClamp;
 
@@ -186,7 +182,18 @@ void sp::DrawAddPasswordForm()
         // Create the random length checkbox
         ImGui::SameLine();
         ImGui::Checkbox("Random Length", &pc_random_length);
+
+        ImGui::NewLine();
     }
+
+    // save options
+    ImGuiTreeNodeFlags save_options_flags = ImGuiTreeNodeFlags_DefaultOpen;
+    static bool save_to_password_folder = true;
+    if (ImGui::CollapsingHeader("Save Options", save_options_flags)) {
+		
+        // save to password folder checkbox
+        ImGui::Checkbox("Save to Password Folder", &save_to_password_folder);
+	}
 
     // Center 'Add Password' button at bottom of window
     ImVec2 button_size = ImGui::CalcTextSize("Add Password");
@@ -349,6 +356,100 @@ void sp::DrawImageViewer()
 
 	// end the ImGui window
 	ImGui::End();
+}
+
+/***************************************************************
+* ADD USER FORM
+***************************************************************/
+
+void sp::DrawAddUserForm()
+{
+    // set the form's position and size (centered in main window)
+    static ImVec2 window_pos = ImVec2(0, 0);
+    static ImVec2 window_size = ImVec2((WindowSpecs::WIDTH / 2), WindowSpecs::HEIGHT / 1.5);
+
+    if (window_pos.x == 0 && window_pos.y == 0) {
+		window_pos.x = (WindowSpecs::WIDTH - window_size.x) / 2;
+		window_pos.y = ((WindowSpecs::HEIGHT - window_size.y) / 2);
+	}
+
+    // fonts to be used in the form
+    ImFont* password_font = FontManager::GetFont("PasswordDots", SP_DEFAULT_FONT_SIZE);
+    ImFont* font_awesome = FontManager::GetFont("FontAwesome", SP_DEFAULT_FONT_SIZE);
+
+    // window flags
+    ImGuiWindowFlags window_flags = 0;
+    window_flags |= ImGuiWindowFlags_NoTitleBar;
+    window_flags |= ImGuiWindowFlags_NoResize;
+    window_flags |= ImGuiWindowFlags_NoMove;
+    window_flags |= ImGuiWindowFlags_NoCollapse;
+
+    // set the window position and size
+    ImGui::SetNextWindowPos(window_pos);
+    ImGui::SetNextWindowSize(window_size);
+
+    // create new ImGui window
+    ImGui::Begin("Add User", NULL, window_flags);
+
+    // user name field
+    static char user_name[SP_MAX_USER_NAME_LENGTH] = "";
+    static float field_width = window_size.x * 0.50f;
+    static float icon_width = 0.0f;
+    if (icon_width == 0.0f) {
+        ImGui::PushFont(font_awesome);
+        icon_width = (ImGui::CalcTextSize(ICON_FK_USER ICON_FK_KEY_MODERN).x / 2) + ImGui::GetStyle().FramePadding.x * 2;
+        ImGui::PopFont();
+    }
+    static float user_field_pos_x = (window_size.x - (field_width + icon_width)) / 2.0f;
+
+    ImGui::NewLine();
+    ImGui::NewLine();
+    ImGui::NewLine();
+
+    ImGui::SetCursorPos(ImVec2(user_field_pos_x, ImGui::GetCursorPos().y + 5));
+
+    ImGui::PushFont(font_awesome);
+    ImGui::Text(ICON_FK_USER);
+    ImGui::PopFont();
+    ImGui::SameLine();
+    ImGui::SetCursorPosX(user_field_pos_x + icon_width);
+
+    ImGui::PushItemWidth(field_width);
+    ImGui::InputTextWithHint("##user_name", "Enter User Name", user_name, SP_MAX_USER_NAME_LENGTH);
+    ImGui::PopItemWidth();
+
+    // enter master password
+    static char master_password[SP_MAX_PASSWORD_LENGTH] = "";
+
+    ImGui::NewLine();
+    ImGui::SetCursorPos(ImVec2(user_field_pos_x, ImGui::GetCursorPos().y + 5));
+
+    ImGui::PushFont(font_awesome);
+    ImGui::Text(ICON_FK_KEY_MODERN);
+    ImGui::PopFont();
+    ImGui::SameLine();
+    ImGui::SetCursorPosX(user_field_pos_x + icon_width);
+
+    bool hide_master_password = strnlen_s(master_password, SP_MAX_PASSWORD_LENGTH) > 0;
+    if (hide_master_password) ImGui::PushFont(password_font);
+    ImGui::PushItemWidth(field_width);
+    ImGui::InputTextWithHint("##master_password", "Enter Master Password", master_password, SP_MAX_PASSWORD_LENGTH, ImGuiInputTextFlags_Password);
+    ImGui::PopItemWidth();
+    if (hide_master_password) ImGui::PopFont();
+
+    // confirm master password
+    static char confirm_master_password[SP_MAX_PASSWORD_LENGTH] = "";
+
+    ImGui::SetCursorPosX(user_field_pos_x + icon_width);
+    bool hide_confirm_master_password = strnlen_s(confirm_master_password, SP_MAX_PASSWORD_LENGTH) > 0;
+    if (hide_confirm_master_password) ImGui::PushFont(password_font);
+    ImGui::PushItemWidth(field_width);
+    ImGui::InputTextWithHint("##confirm_master_password", "Confirm Master Password", confirm_master_password, SP_MAX_PASSWORD_LENGTH, ImGuiInputTextFlags_Password);
+    ImGui::PopItemWidth();
+    if (hide_confirm_master_password) ImGui::PopFont();
+
+    // end the ImGui window
+    ImGui::End();
 }
 
 /***************************************************************

@@ -1,5 +1,5 @@
 /***************************************************************/
-/*  app/Pages.hpp                                              */
+/*  app/User.hpp                                              */
 /* *************************************************************/
 /*                 This file is a part of:                     */
 /*             -- StegPass: Password Manager --                */
@@ -34,37 +34,26 @@
 #pragma once
 
 /***************************************************************
-* Forward Declarations
+* Management of User Data
 ***************************************************************/
 
 namespace sp {
 
-	enum Page {
-		PageAddUser,         // For registering a new user
-		PageLogin,           // For logging in a user
-		PageAddPassword,     // For adding a new password with the active user
+	class UserManager {
+	public:
+
+		/// <summary>
+		/// Initializes the user manager.
+		/// </summary>
+		static void Init();
+
+		/// <summary>
+		/// Destroys the user manager.
+		/// </summary>
+		static void Destroy();
+
+	private:
+		static UserManager* m_instance;
 	};
-
-	/// <summary>
-	/// Sets the active page for the application.
-	/// </summary>
-	/// <param name="page">The page to set as active. </param>
-	void SetActivePage(Page page);
-
-	/// <summary>
-	/// Gets the active page for the application.
-	/// </summary>
-	/// <returns>The active page. </returns>
-	[[nodiscard]] Page GetActivePage();
-
-	/// <summary>
-	/// Draws the 'Add User' page for the application.
-	/// </summary>
-	void DrawAddUserPage();
-
-	/// <summary>
-	/// Draws the 'Add Password' page for the application.
-	/// </summary>
-	void DrawAddPasswordPage();
 
 }

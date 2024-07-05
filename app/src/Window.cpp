@@ -105,7 +105,6 @@ void InitGui()
     (void)sp::FontManager::AddFont("OpenSans", "res/Open_Sans/OpenSans-VariableFont_wdth,wght.ttf", SP_DEFAULT_FONT_SIZE);
     (void)sp::FontManager::AddPasswordFont("PasswordDots", "res/Open_Sans/OpenSans-VariableFont_wdth,wght.ttf", SP_DEFAULT_FONT_SIZE);
     (void)sp::FontManager::AddIconFont("FontAwesome", "res/awesome/forkawesome-webfont.ttf", SP_DEFAULT_FONT_SIZE);
-    
 }
 
 void RunAppLoop()
@@ -122,7 +121,19 @@ void RunAppLoop()
         ImGui::NewFrame();
         
         // Draw the current page
-        sp::DrawAddPasswordPage();
+        switch (sp::GetActivePage()) {
+            case sp::Page::PageAddUser:
+				sp::DrawAddUserPage();
+				break;
+            case sp::Page::PageLogin:
+                // pass
+				break;
+            case sp::Page::PageAddPassword:
+                sp::DrawAddPasswordPage();
+                break;
+            default:
+                break;
+        }
 
         // Render ImGui
         ImGui::Render();

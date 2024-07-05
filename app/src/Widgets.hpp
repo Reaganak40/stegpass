@@ -60,6 +60,11 @@ namespace sp {
 	void DrawImageViewer();
 
 	/// <summary>
+	/// Draws the 'Add User' form for the application.
+	/// </summary>
+	void DrawAddUserForm();
+
+	/// <summary>
 	/// Manages the fonts for the application.
 	/// </summary>
 	class FontManager
